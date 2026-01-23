@@ -261,7 +261,7 @@ onMounted(() => {
               <!-- Grid de Tarjetas -->
               <div class="row g-3 mb-4">
                 <!-- Euro -->
-                <div class="col-sm-6 col-md-3">
+                <div class="col-6 col-md-3">
                   <div
                     class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
                   >
@@ -276,9 +276,9 @@ onMounted(() => {
                 </div>
 
                 <!-- Dolar -->
-                <div class="col-sm-6 col-md-3">
+                <div class="col-6 col-md-3">
                   <div
-                    class="card border border-success h-100 bg-success-subtle rounded-3 shadow-sm hover-elevate transition-all"
+                    class="card border border-0 h-100 bg-light rounded-3 shadow-sm hover-elevate transition-all"
                   >
                     <div class="card-body text-center p-3">
                       <div class="text-success fw-bold text-uppercase mb-1 currency-label">
@@ -291,7 +291,7 @@ onMounted(() => {
                 </div>
 
                 <!-- USDT -->
-                <div class="col-sm-6 col-md-3">
+                <div class="col-6 col-md-3">
                   <div
                     class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
                   >
@@ -308,7 +308,7 @@ onMounted(() => {
                 </div>
 
                 <!-- GAP -->
-                <div class="col-sm-6 col-md-3">
+                <div class="col-6 col-md-3">
                   <div
                     class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
                   >
@@ -326,17 +326,17 @@ onMounted(() => {
               <!-- Tabla de Calculadora -->
               <div class="mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <h6 class="fw-bold text-secondary mb-0 small">Calculadora de Precios</h6>
+                  <h6 class="fw-bold text-secondary mb-0 small me-2">Calculadora de Precios</h6>
                   <div class="d-flex gap-2">
                     <button
                       @click="downloadReport"
-                      class="btn btn-outline-success btn-sm rounded-pill px-3 btn-custom"
+                      class="btn btn-outline-success btn-sm rounded-pill px-3 btn-custom small"
                     >
                       Descargar Reporte
                     </button>
                     <button
                       @click="addItem"
-                      class="btn btn-primary btn-sm rounded-pill px-3 btn-custom"
+                      class="btn btn-primary btn-sm rounded-pill px-3 btn-custom small"
                     >
                       + Agregar Item
                     </button>
@@ -344,17 +344,17 @@ onMounted(() => {
                 </div>
                 <div class="table-responsive rounded-3 border shadow-sm">
                   <table
-                    class="table table-hover table-striped mb-0 align-middle text-center small-table"
+                    class="table table-hover table-striped mb-0 align-middle text-center small-table text-nowrap"
                   >
                     <thead class="bg-light text-secondary">
                       <tr>
-                        <th class="fw-bold text-start ps-3" style="width: 25%">Item</th>
-                        <th class="fw-bold" style="width: 15%">Precio ($)</th>
+                        <th class="fw-bold text-start ps-3">Item</th>
+                        <th class="fw-bold">Precio ($)</th>
                         <th class="fw-bold">Bs (BCV $)</th>
                         <th class="fw-bold">Bs (BCV €)</th>
                         <th class="fw-bold">Bs (P2P)</th>
                         <th class="fw-bold text-danger">Reposición ($)</th>
-                        <th style="width: 5%"></th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody class="bg-white">
@@ -558,9 +558,11 @@ onMounted(() => {
 
 .small-table {
   font-size: 0.75rem;
+  min-width: 850px;
 }
 .small-table input {
   font-size: 0.75rem;
+  min-width: 80px;
 }
 
 .hover-elevate {
