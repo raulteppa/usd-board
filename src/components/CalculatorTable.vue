@@ -11,6 +11,14 @@ const formatRate = (value) => {
 }
 
 const isTableView = computed(() => viewMode.value === 'table')
+
+const lockButtonClasses = (item, field) => {
+  const isLocked = item.lockedField === field
+  return [
+    isLocked ? 'text-primary' : 'opacity-25',
+    isLocked ? '' : store.theme === 'dark' ? 'text-white-50' : 'text-muted',
+  ]
+}
 </script>
 
 <template>
@@ -121,12 +129,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="[
-                    item.lockedField === 'price' ? 'text-primary' : 'opacity-25',
-                    store.theme === 'dark' && item.lockedField !== 'price'
-                      ? 'text-white-50'
-                      : 'text-muted',
-                  ]"
+                  :class="lockButtonClasses(item, 'price')"
                   @click="store.toggleLock(item, 'price')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -148,12 +151,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="[
-                    item.lockedField === 'bs_usd' ? 'text-primary' : 'opacity-25',
-                    store.theme === 'dark' && item.lockedField !== 'bs_usd'
-                      ? 'text-white-50'
-                      : 'text-muted',
-                  ]"
+                  :class="lockButtonClasses(item, 'bs_usd')"
                   @click="store.toggleLock(item, 'bs_usd')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -175,12 +173,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="[
-                    item.lockedField === 'bs_eur' ? 'text-primary' : 'opacity-25',
-                    store.theme === 'dark' && item.lockedField !== 'bs_eur'
-                      ? 'text-white-50'
-                      : 'text-muted',
-                  ]"
+                  :class="lockButtonClasses(item, 'bs_eur')"
                   @click="store.toggleLock(item, 'bs_eur')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -202,12 +195,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="[
-                    item.lockedField === 'bs_p2p' ? 'text-primary' : 'opacity-25',
-                    store.theme === 'dark' && item.lockedField !== 'bs_p2p'
-                      ? 'text-white-50'
-                      : 'text-muted',
-                  ]"
+                  :class="lockButtonClasses(item, 'bs_p2p')"
                   @click="store.toggleLock(item, 'bs_p2p')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -228,12 +216,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="[
-                    item.lockedField === 'reposition' ? 'text-primary' : 'opacity-25',
-                    store.theme === 'dark' && item.lockedField !== 'reposition'
-                      ? 'text-white-50'
-                      : 'text-muted',
-                  ]"
+                  :class="lockButtonClasses(item, 'reposition')"
                   @click="store.toggleLock(item, 'reposition')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -311,12 +294,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="[
-                      item.lockedField === 'price' ? 'text-primary' : 'opacity-25',
-                      store.theme === 'dark' && item.lockedField !== 'price'
-                        ? 'text-white-50'
-                        : 'text-muted',
-                    ]"
+                    :class="lockButtonClasses(item, 'price')"
                     @click="store.toggleLock(item, 'price')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
@@ -345,12 +323,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="[
-                      item.lockedField === 'bs_usd' ? 'text-primary' : 'opacity-25',
-                      store.theme === 'dark' && item.lockedField !== 'bs_usd'
-                        ? 'text-white-50'
-                        : 'text-muted',
-                    ]"
+                    :class="lockButtonClasses(item, 'bs_usd')"
                     @click="store.toggleLock(item, 'bs_usd')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
@@ -379,12 +352,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="[
-                      item.lockedField === 'bs_eur' ? 'text-primary' : 'opacity-25',
-                      store.theme === 'dark' && item.lockedField !== 'bs_eur'
-                        ? 'text-white-50'
-                        : 'text-muted',
-                    ]"
+                    :class="lockButtonClasses(item, 'bs_eur')"
                     @click="store.toggleLock(item, 'bs_eur')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
@@ -413,12 +381,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="[
-                      item.lockedField === 'bs_p2p' ? 'text-primary' : 'opacity-25',
-                      store.theme === 'dark' && item.lockedField !== 'bs_p2p'
-                        ? 'text-white-50'
-                        : 'text-muted',
-                    ]"
+                    :class="lockButtonClasses(item, 'bs_p2p')"
                     @click="store.toggleLock(item, 'bs_p2p')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
@@ -445,12 +408,7 @@ const isTableView = computed(() => viewMode.value === 'table')
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="[
-                      item.lockedField === 'reposition' ? 'text-primary' : 'opacity-25',
-                      store.theme === 'dark' && item.lockedField !== 'reposition'
-                        ? 'text-white-50'
-                        : 'text-muted',
-                    ]"
+                    :class="lockButtonClasses(item, 'reposition')"
                     @click="store.toggleLock(item, 'reposition')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
