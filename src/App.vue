@@ -74,7 +74,7 @@ onMounted(() => {
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-11">
-          <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+          <div class="card shadow-lg border-0 rounded-3 overflow-hidden" style="min-height: 720px">
             <!-- Encabezado con color primario -->
             <div class="card-header bg-primary text-white p-3 border-0">
               <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -142,7 +142,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="card-body bg-white p-3 p-md-4">
+            <div class="card-body d-flex flex-column bg-white p-3 p-md-4">
               <p v-if="currentView === 'rates'" class="text-muted mb-4 small">
                 Consulta en tiempo real las tasas de cambio oficiales del Banco Central de Venezuela
                 y la estimación del mercado P2P en Binance.
@@ -190,29 +190,16 @@ onMounted(() => {
                 </div>
               </transition>
 
-              <!-- Notas y Footer
-              <div class="border-top pt-3">
+              <div class="border-top pt-3 h-100 d-flex flex-column justify-content-end mt-auto">
                 <h6 class="fw-bold text-secondary mb-2 small">Detalles Técnicos</h6>
-                <div
-                  class="alert alert-light border text-muted rounded-2 py-2 px-3 mb-0 details-box"
-                >
-                  <div class="d-flex flex-column gap-1">
-                    <div>
-                      <span class="badge bg-secondary me-2 badge-custom">BCV</span> Se obtiene del
-                      contenedor <code>.recuadrotsmc</code> del sitio oficial.
-                    </div>
-                    <div>
-                      <span class="badge bg-secondary me-2 badge-custom">P2P</span> Se extrae del
-                      valor <code>#start-price</code> en p2p.army.
-                    </div>
-                    <div>
-                      <span class="badge bg-info text-dark me-2 badge-custom">Nota</span>
-                      Requiere backend activo (<code>npm run backend</code>) para evitar bloqueos
-                      CORS.
-                    </div>
-                  </div>
-                </div>
-              </div> -->
+
+                <p class="mt-3 small text-muted mb-0">
+                  Este sitio obtiene sus datos mediante web scraping al Banco Central de Venezuela y
+                  a la plataforma de P2P Army. La información también está disponible a través de la
+                  API en
+                  <code>https://usd-board.vercel.app/api/rates</code>
+                </p>
+              </div>
             </div>
           </div>
         </div>
