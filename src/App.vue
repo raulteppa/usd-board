@@ -137,57 +137,63 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="card-body container d-flex flex-column bg-white p-3 p-md-4">
-        <p v-if="currentView === 'rates'" class="text-muted mb-4 small">
-          Consulta en tiempo real las tasas de cambio oficiales del Banco Central de Venezuela y la
-          estimación del mercado P2P en Binance.
-        </p>
+      <div class="card-body bg-white p-3 p-md-4 overflow-y-auto">
+        <div class="container d-flex flex-column justify-content-between h-100">
+          <p v-if="currentView === 'rates'" class="text-muted mb-4 small">
+            Consulta en tiempo real las tasas de cambio oficiales del Banco Central de Venezuela y
+            la estimación del mercado P2P en Binance.
+          </p>
 
-        <div
-          v-if="store.error"
-          class="alert alert-danger py-2 px-3 rounded-2 mb-3 shadow-sm alert-custom"
-          role="alert"
-        >
-          <strong>Error:</strong> {{ store.error }}
-        </div>
+          <div
+            v-if="store.error"
+            class="alert alert-danger py-2 px-3 rounded-2 mb-3 shadow-sm alert-custom"
+            role="alert"
+          >
+            <strong>Error:</strong> {{ store.error }}
+          </div>
 
-        <transition :name="transitionName" mode="out-in">
-          <div :key="currentView">
-            <!-- Grid de Tarjetas -->
-            <div v-if="currentView === 'rates'" class="row g-3 mb-4">
-              <div v-for="card in rateCards" :key="card.id" class="col-6 col-md-3">
-                <div class="card h-100 bg-light rounded-3 shadow-sm hover-elevate transition-all">
-                  <div class="card-body text-center p-3">
-                    <div class="fw-bold text-uppercase mb-1 currency-label" :class="card.className">
-                      {{ card.label }}
+          <transition :name="transitionName" mode="out-in">
+            <div :key="currentView">
+              <!-- Grid de Tarjetas -->
+              <div v-if="currentView === 'rates'" class="row g-3 mb-4">
+                <div v-for="card in rateCards" :key="card.id" class="col-6 col-md-3">
+                  <div class="card h-100 bg-light rounded-3 shadow-sm hover-elevate transition-all">
+                    <div class="card-body text-center p-3">
+                      <div
+                        class="fw-bold text-uppercase mb-1 currency-label"
+                        :class="card.className"
+                      >
+                        {{ card.label }}
+                      </div>
+                      <h2 class="h4 fw-bold text-dark mb-0">
+                        {{ card.value }}
+                      </h2>
+                      <small class="text-muted currency-unit">
+                        {{ card.footer ?? 'Bs. Digitales' }}
+                      </small>
                     </div>
-                    <h2 class="h4 fw-bold text-dark mb-0">
-                      {{ card.value }}
-                    </h2>
-                    <small class="text-muted currency-unit">
-                      {{ card.footer ?? 'Bs. Digitales' }}
-                    </small>
                   </div>
                 </div>
               </div>
+
+              <!-- Tabla de Calculadora -->
+              <CalculatorTable v-else-if="currentView === 'calculator'" />
+
+              <!-- Conversor -->
+              <ConversionCalculator v-else />
             </div>
+          </transition>
 
-            <!-- Tabla de Calculadora -->
-            <CalculatorTable v-else-if="currentView === 'calculator'" />
+          <div class="border-top pt-3 d-flex flex-column justify-content-end mt-auto">
+            <h6 class="fw-bold text-secondary mb-2 small">Detalles Técnicos</h6>
 
-            <!-- Conversor -->
-            <ConversionCalculator v-else />
+            <p class="mt-3 small text-muted mb-0">
+              Este sitio obtiene sus datos mediante web scraping al Banco Central de Venezuela y a
+              la plataforma de P2P Army. La información también está disponible a través de la API
+              en
+              <code>https://usd-board.vercel.app/api/rates</code>
+            </p>
           </div>
-        </transition>
-
-        <div class="border-top pt-3 h-100 d-flex flex-column justify-content-end mt-auto">
-          <h6 class="fw-bold text-secondary mb-2 small">Detalles Técnicos</h6>
-
-          <p class="mt-3 small text-muted mb-0">
-            Este sitio obtiene sus datos mediante web scraping al Banco Central de Venezuela y a la
-            plataforma de P2P Army. La información también está disponible a través de la API en
-            <code>https://usd-board.vercel.app/api/rates</code>
-          </p>
         </div>
       </div>
     </div>
