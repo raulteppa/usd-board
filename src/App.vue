@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import CalculatorTable from './components/CalculatorTable.vue'
 import { useRatesStore } from './stores/rates.js'
 
@@ -23,33 +23,13 @@ const selectView = (view) => {
 }
 
 const viewOrder = ['rates', 'calculator']
-const touchStartX = ref(null)
-const touchStartY = ref(null)
+const transitionName = ref('slide-left')
 
-const onTouchStart = (event) => {
-  const touch = event.touches[0]
-  touchStartX.value = touch.clientX
-  touchStartY.value = touch.clientY
-}
-
-const onTouchEnd = (event) => {
-  if (touchStartX.value === null || touchStartY.value === null) return
-  const touch = event.changedTouches[0]
-  const deltaX = touch.clientX - touchStartX.value
-  const deltaY = touch.clientY - touchStartY.value
-  const horizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY)
-  const threshold = 60
-
-  if (horizontalSwipe && Math.abs(deltaX) > threshold) {
-    const currentIndex = viewOrder.indexOf(currentView.value)
-    const nextIndex = deltaX < 0 ? currentIndex + 1 : currentIndex - 1
-    const clampedIndex = Math.min(Math.max(nextIndex, 0), viewOrder.length - 1)
-    currentView.value = viewOrder[clampedIndex]
-  }
-
-  touchStartX.value = null
-  touchStartY.value = null
-}
+watch(currentView, (next, prev) => {
+  const nextIndex = viewOrder.indexOf(next)
+  const prevIndex = viewOrder.indexOf(prev)
+  transitionName.value = nextIndex > prevIndex ? 'slide-left' : 'slide-right'
+})
 
 onMounted(() => {
   const saved = store.loadFromStorage()
@@ -118,11 +98,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div
-              class="card-body bg-white p-3 p-md-4"
-              @touchstart.passive="onTouchStart"
-              @touchend.passive="onTouchEnd"
-            >
+            <div class="card-body bg-white p-3 p-md-4">
               <p class="text-muted mb-4 small">
                 Consulta en tiempo real las tasas de cambio oficiales del Banco Central de Venezuela
                 y la estimación del mercado P2P en Binance.
@@ -136,81 +112,85 @@ onMounted(() => {
                 <strong>Error:</strong> {{ store.error }}
               </div>
 
-              <!-- Grid de Tarjetas -->
-              <div v-if="currentView === 'rates'" class="row g-3 mb-4">
-                <!-- Euro -->
-                <div class="col-6 col-md-3">
-                  <div
-                    class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
-                  >
-                    <div class="card-body text-center p-3">
-                      <div class="text-primary fw-bold text-uppercase mb-1 currency-label">
-                        Euro (EUR)
-                      </div>
-                      <h2 class="h4 fw-bold text-dark mb-0">
-                        {{ formatRate(store.bcvRates.eur) }}
-                      </h2>
-                      <small class="text-muted currency-unit">Bs. Digitales</small>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Dolar -->
-                <div class="col-6 col-md-3">
-                  <div
-                    class="card border border-0 h-100 bg-light rounded-3 shadow-sm hover-elevate transition-all"
-                  >
-                    <div class="card-body text-center p-3">
-                      <div class="text-success fw-bold text-uppercase mb-1 currency-label">
-                        Dólar (USD)
-                      </div>
-                      <h2 class="h4 fw-bold text-dark mb-0">
-                        {{ formatRate(store.bcvRates.usd) }}
-                      </h2>
-                      <small class="text-muted currency-unit">Bs. Digitales</small>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- USDT -->
-                <div class="col-6 col-md-3">
-                  <div
-                    class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
-                  >
-                    <div class="card-body text-center p-3">
+              <transition :name="transitionName" mode="out-in">
+                <div :key="currentView">
+                  <!-- Grid de Tarjetas -->
+                  <div v-if="currentView === 'rates'" class="row g-3 mb-4">
+                    <!-- Euro -->
+                    <div class="col-6 col-md-3">
                       <div
-                        class="text-warning text-dark fw-bold text-uppercase mb-1 currency-label"
+                        class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
                       >
-                        USDT (P2P)
+                        <div class="card-body text-center p-3">
+                          <div class="text-primary fw-bold text-uppercase mb-1 currency-label">
+                            Euro (EUR)
+                          </div>
+                          <h2 class="h4 fw-bold text-dark mb-0">
+                            {{ formatRate(store.bcvRates.eur) }}
+                          </h2>
+                          <small class="text-muted currency-unit">Bs. Digitales</small>
+                        </div>
                       </div>
-                      <h2 class="h4 fw-bold text-dark mb-0">
-                        {{ formatRate(store.usdtRate) }}
-                      </h2>
-                      <small class="text-muted currency-unit">Bs. Digitales</small>
+                    </div>
+
+                    <!-- Dolar -->
+                    <div class="col-6 col-md-3">
+                      <div
+                        class="card border border-0 h-100 bg-light rounded-3 shadow-sm hover-elevate transition-all"
+                      >
+                        <div class="card-body text-center p-3">
+                          <div class="text-success fw-bold text-uppercase mb-1 currency-label">
+                            Dólar (USD)
+                          </div>
+                          <h2 class="h4 fw-bold text-dark mb-0">
+                            {{ formatRate(store.bcvRates.usd) }}
+                          </h2>
+                          <small class="text-muted currency-unit">Bs. Digitales</small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- USDT -->
+                    <div class="col-6 col-md-3">
+                      <div
+                        class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
+                      >
+                        <div class="card-body text-center p-3">
+                          <div
+                            class="text-warning text-dark fw-bold text-uppercase mb-1 currency-label"
+                          >
+                            USDT (P2P)
+                          </div>
+                          <h2 class="h4 fw-bold text-dark mb-0">
+                            {{ formatRate(store.usdtRate) }}
+                          </h2>
+                          <small class="text-muted currency-unit">Bs. Digitales</small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- GAP -->
+                    <div class="col-6 col-md-3">
+                      <div
+                        class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
+                      >
+                        <div class="card-body text-center p-3">
+                          <div class="text-danger fw-bold text-uppercase mb-1 currency-label">
+                            Brecha %
+                          </div>
+                          <h2 class="h4 fw-bold text-dark mb-0">
+                            {{ gap ? gap + '%' : '--' }}
+                          </h2>
+                          <small class="text-muted currency-unit">BCV vs P2P</small>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- GAP -->
-                <div class="col-6 col-md-3">
-                  <div
-                    class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
-                  >
-                    <div class="card-body text-center p-3">
-                      <div class="text-danger fw-bold text-uppercase mb-1 currency-label">
-                        Brecha %
-                      </div>
-                      <h2 class="h4 fw-bold text-dark mb-0">
-                        {{ gap ? gap + '%' : '--' }}
-                      </h2>
-                      <small class="text-muted currency-unit">BCV vs P2P</small>
-                    </div>
-                  </div>
+                  <!-- Tabla de Calculadora -->
+                  <CalculatorTable v-else />
                 </div>
-              </div>
-
-              <!-- Tabla de Calculadora -->
-              <CalculatorTable v-if="currentView === 'calculator'" />
+              </transition>
 
               <!-- Notas y Footer
               <div class="border-top pt-3">
@@ -285,5 +265,24 @@ onMounted(() => {
 .hover-elevate:hover {
   transform: translateY(-5px);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.15s ease;
+}
+
+.slide-left-enter-from,
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(16px);
+}
+
+.slide-left-leave-to,
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-16px);
 }
 </style>
