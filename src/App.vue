@@ -38,7 +38,7 @@ const rateCards = computed(() => [
     id: 'usdt',
     label: 'USDT (P2P)',
     value: formatRate(store.usdtRate),
-    className: 'text-warning text-dark',
+    className: store.theme === 'dark' ? 'text-warning ' : 'text-secondary ',
     footer: 'Binance USDT-P2P',
   },
   {
@@ -85,24 +85,41 @@ onMounted(() => {
               </div>
               <h1 class="h5 fw-bold mb-0 text-uppercase">Monitor de Tasas</h1>
             </div>
-            <button
-              @click="store.loadRates()"
-              class="btn btn-light btn-sm fst-italic fw-bold shadow-sm d-flex align-items-center gap-2 px-3 rounded-pill btn-custom"
-              :disabled="store.loading"
-              title="Actualizar"
-              aria-label="Actualizar"
-            >
-              <span
-                v-if="store.loading"
-                class="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              ></span>
-              <i v-else class="bi bi-arrow-clockwise fw-medium"></i>
-              <span :class="{ 'text-muted': store.loading }"
-                >Actualizar<span v-if="store.loading">...</span></span
+            <div class="d-flex gap-2">
+              <button
+                @click="store.toggleTheme()"
+                class="btn btn-sm shadow-sm d-flex align-items-center justify-content-center rounded-circle btn-custom"
+                :class="
+                  store.theme === 'dark' ? 'btn-dark text-warning' : 'btn-light text-secondary'
+                "
+                title="Cambiar tema"
+                aria-label="Cambiar tema"
+                style="width: 32px; height: 32px"
               >
-            </button>
+                <i
+                  class="bi"
+                  :class="store.theme === 'dark' ? 'bi-moon-stars-fill' : 'bi-sun-fill'"
+                ></i>
+              </button>
+              <button
+                @click="store.loadRates()"
+                class="btn btn-light btn-sm fst-italic fw-bold shadow-sm d-flex align-items-center gap-2 px-3 rounded-pill btn-custom"
+                :disabled="store.loading"
+                title="Actualizar"
+                aria-label="Actualizar"
+              >
+                <span
+                  v-if="store.loading"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <i v-else class="bi bi-arrow-clockwise fw-medium"></i>
+                <span :class="{ 'text-muted': store.loading }"
+                  >Actualizar<span v-if="store.loading">...</span></span
+                >
+              </button>
+            </div>
           </div>
           <div class="header-tabs mt-3">
             <button
@@ -137,9 +154,16 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="card-body bg-white p-3 p-md-4 overflow-y-auto">
+      <div
+        class="card-body p-3 p-md-4 overflow-y-auto"
+        :class="store.theme === 'dark' ? 'bg-dark text-white' : 'bg-white text-dark'"
+      >
         <div class="container d-flex flex-column justify-content-between h-100">
-          <p v-if="currentView === 'rates'" class="text-muted mb-4 small">
+          <p
+            v-if="currentView === 'rates'"
+            class="mb-4 small"
+            :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+          >
             Consulta en tiempo real las tasas de cambio oficiales del Banco Central de Venezuela y
             la estimación del mercado P2P en Binance.
           </p>
@@ -157,7 +181,14 @@ onMounted(() => {
               <!-- Grid de Tarjetas -->
               <div v-if="currentView === 'rates'" class="row g-3 mb-4">
                 <div v-for="card in rateCards" :key="card.id" class="col-6 col-md-3">
-                  <div class="card h-100 bg-light rounded-3 shadow-sm hover-elevate transition-all">
+                  <div
+                    class="card h-100 rounded-3 shadow-sm hover-elevate transition-all"
+                    :class="
+                      store.theme === 'dark'
+                        ? 'bg-secondary bg-opacity-25 border-secondary'
+                        : 'bg-light'
+                    "
+                  >
                     <div class="card-body text-center p-3">
                       <div
                         class="fw-bold text-uppercase mb-1 currency-label"
@@ -165,10 +196,16 @@ onMounted(() => {
                       >
                         {{ card.label }}
                       </div>
-                      <h2 class="h4 fw-bold text-dark mb-0">
+                      <h2
+                        class="h4 fw-bold mb-0"
+                        :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
+                      >
                         {{ card.value }}
                       </h2>
-                      <small class="text-muted currency-unit">
+                      <small
+                        class="currency-unit"
+                        :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+                      >
                         {{ card.footer ?? 'Bs. Digitales' }}
                       </small>
                     </div>
@@ -185,9 +222,25 @@ onMounted(() => {
           </transition>
 
           <div class="border-top pt-3 d-flex flex-column justify-content-end mt-auto">
-            <h6 class="fw-bold text-secondary mb-2 small">Detalles Técnicos</h6>
+            <h6
+              :class="[
+                'fw-bold',
+                'mb-2',
+                'small',
+                store.theme === 'dark' ? 'text-white-50' : 'text-muted',
+              ]"
+            >
+              Detalles Técnicos
+            </h6>
 
-            <p class="mt-3 small text-muted mb-0">
+            <p
+              :class="[
+                'mt-3',
+                'small',
+                store.theme === 'dark' ? 'text-white-50' : 'text-muted',
+                'mb-0',
+              ]"
+            >
               Este sitio obtiene sus datos mediante web scraping al Banco Central de Venezuela y a
               la plataforma de P2P Army. La información también está disponible a través de la API
               en

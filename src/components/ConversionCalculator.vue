@@ -80,26 +80,38 @@ const presetAmounts = [5, 10, 20, 50, 100]
 
 <template>
   <div class="d-flex justify-content-center">
-    <div class="card border-0 rounded-4 overflow-hidden w-100">
+    <div
+      class="card border-0 rounded-4 overflow-hidden w-100"
+      :class="store.theme === 'dark' ? 'bg-dark' : 'bg-transparent'"
+    >
       <!-- Header with Gradient -->
-      <div class="px-3 py-1">
+      <div :class="['px-3 py-1', { 'text-white': store.theme === 'dark' }]">
         <h5 class="mb-0 fw-bold"><i class="bi bi-arrow-left-right me-2"></i>Conversor</h5>
         <div class="small opacity-75" style="font-size: 0.8rem">Calculadora de Cambio Rápida</div>
       </div>
       <div class="card-body p-3">
         <!-- Input Section USD -->
-        <div class="bg-white p-3 rounded-4 shadow-sm mb-3 border position-relative">
+        <div
+          class="p-3 rounded-4 shadow-sm mb-3 border position-relative"
+          :class="
+            store.theme === 'dark' ? 'bg-secondary bg-opacity-10 border-secondary' : 'bg-white'
+          "
+        >
           <label
-            class="small text-muted text-center fw-bold d-block mb-1 text-uppercase"
+            class="small text-center fw-bold d-block mb-1 text-uppercase"
+            :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
             style="font-size: 0.7rem"
             >Monto en Divisa ({{ selectedRate.toUpperCase() }})</label
           >
           <div class="d-flex align-items-center justify-content-center mb-2">
-            <span class="fs-2 text-muted me-2">$</span>
+            <span class="fs-2 me-2" :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+              >$</span
+            >
             <input
               type="text"
               inputmode="decimal"
-              class="form-control border-0 p-0 fs-1 fw-bold text-dark text-center shadow-none bg-transparent"
+              class="form-control border-0 p-0 fs-1 fw-bold text-center shadow-none bg-transparent"
+              :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
               :value="store.formatMoney(usdAmount)"
               @input="updateFromUsd"
               placeholder="0,00"
@@ -136,11 +148,13 @@ const presetAmounts = [5, 10, 20, 50, 100]
               />
               <label
                 class="btn w-100 h-100 d-flex flex-column align-items-center justify-content-center py-2 rounded-3 border-0 shadow-sm"
-                :class="
+                :class="[
                   selectedRate === option.id
                     ? `bg-${option.color} text-white`
-                    : 'bg-white text-secondary'
-                "
+                    : store.theme === 'dark'
+                      ? 'bg-secondary bg-opacity-25 text-light'
+                      : 'bg-white text-secondary',
+                ]"
                 :for="'rate-' + option.id"
               >
                 <i :class="['bi', option.icon, 'fs-6 mb-1']"></i>
@@ -153,12 +167,23 @@ const presetAmounts = [5, 10, 20, 50, 100]
           <!-- Current Rate Display -->
           <div class="text-center mt-2 collapse show" v-if="currentRate">
             <div
-              class="d-inline-flex align-items-center bg-white px-3 py-1 rounded-pill shadow-sm border border-light"
+              class="d-inline-flex align-items-center px-3 py-1 rounded-pill shadow-sm border"
+              :class="
+                store.theme === 'dark'
+                  ? 'bg-secondary bg-opacity-25 border-secondary'
+                  : 'bg-white border-light'
+              "
             >
               <i class="bi bi-info-circle text-primary me-2" style="font-size: 0.8rem"></i>
-              <span class="text-muted" style="font-size: 0.75rem">
+              <span
+                class="small"
+                :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+                style="font-size: 0.75rem"
+              >
                 1 {{ selectedRate.toUpperCase() }} =
-                <span class="fw-bold text-dark">{{ store.formatMoney(currentRate) }} VES</span>
+                <span class="fw-bold" :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
+                  >{{ store.formatMoney(currentRate) }} VES</span
+                >
               </span>
             </div>
           </div>
@@ -166,8 +191,14 @@ const presetAmounts = [5, 10, 20, 50, 100]
 
         <!-- Divider with Arrow -->
         <div class="position-relative my-2 text-center" style="height: 30px">
-          <hr class="border-secondary opacity-10 position-absolute top-50 w-100 m-0 z-0" />
-          <div class="position-relative z-1 d-inline-block bg-light px-2">
+          <hr
+            class="opacity-10 position-absolute top-50 w-100 m-0 z-0"
+            :class="store.theme === 'dark' ? 'border-light' : 'border-secondary'"
+          />
+          <div
+            class="position-relative z-1 d-inline-block px-2"
+            :class="store.theme === 'dark' ? 'bg-dark' : 'bg-light'"
+          >
             <div
               class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm"
               style="width: 28px; height: 28px"
@@ -179,7 +210,8 @@ const presetAmounts = [5, 10, 20, 50, 100]
 
         <!-- Result Section (Editable VES) -->
         <div
-          class="bg-white p-3 rounded-4 shadow-sm border border-primary border-opacity-10 text-center position-relative overflow-hidden"
+          class="p-3 rounded-4 shadow-sm border border-primary border-opacity-10 text-center position-relative overflow-hidden"
+          :class="store.theme === 'dark' ? 'bg-secondary bg-opacity-10' : 'bg-white'"
         >
           <div
             class="position-absolute top-0 start-0 w-100 h-100 bg-primary opacity-5 pointer-events-none"

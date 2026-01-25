@@ -42,7 +42,7 @@ const isTableView = computed(() => viewMode.value === 'table')
         </div>
         <button
           @click="store.downloadReport"
-          class="btn btn-outline-success btn-sm rounded-pill px-3 btn-custom small"
+          class="btn btn-success btn-sm rounded-pill px-3 btn-custom small"
           title="Descargar reporte"
           aria-label="Descargar reporte"
         >
@@ -76,11 +76,16 @@ const isTableView = computed(() => viewMode.value === 'table')
         {{ store.gap ? store.gap + '%' : '--' }}
       </span>
     </div>
-    <div v-if="isTableView" class="table-responsive rounded-3 border shadow-sm">
+    <div
+      v-if="isTableView"
+      class="table-responsive rounded-3 border shadow-sm"
+      :class="store.theme === 'dark' ? 'border-secondary' : 'border-light'"
+    >
       <table
-        class="table table-hover table-striped mb-0 align-middle text-center small-table text-nowrap"
+        class="table table-hover mb-0 align-middle text-center small-table text-nowrap"
+        :class="store.theme === 'dark' ? 'table-dark text-white' : 'table-striped'"
       >
-        <thead class="bg-light text-secondary">
+        <thead :class="store.theme === 'dark' ? 'bg-black text-white' : 'bg-light text-secondary'">
           <tr>
             <th class="fw-bold text-start ps-3">Item</th>
             <th class="fw-bold">Precio ($)</th>
@@ -91,12 +96,13 @@ const isTableView = computed(() => viewMode.value === 'table')
             <th>Quitar</th>
           </tr>
         </thead>
-        <tbody class="bg-white">
+        <tbody :class="store.theme === 'dark' ? 'bg-dark' : 'bg-white'">
           <tr v-for="item in store.items" :key="item.id">
             <td class="ps-3">
               <input
                 type="text"
-                class="form-control form-control-sm border-0 bg-transparent fw-bold text-dark"
+                class="form-control form-control-sm border-0 bg-transparent fw-bold"
+                :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
                 v-model="item.name"
                 placeholder="Nombre"
               />
@@ -106,7 +112,8 @@ const isTableView = computed(() => viewMode.value === 'table')
                 <input
                   type="text"
                   inputmode="decimal"
-                  class="form-control text-center border-0 bg-transparent fw-bold text-dark"
+                  class="form-control text-center border-0 bg-transparent fw-bold"
+                  :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
                   :value="store.formatMoney(item.price)"
                   @input="store.updateFromPrice(item, $event.target.value)"
                   min="0"
@@ -114,7 +121,12 @@ const isTableView = computed(() => viewMode.value === 'table')
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="item.lockedField === 'price' ? 'text-primary' : 'text-muted opacity-25'"
+                  :class="[
+                    item.lockedField === 'price' ? 'text-primary' : 'opacity-25',
+                    store.theme === 'dark' && item.lockedField !== 'price'
+                      ? 'text-white-50'
+                      : 'text-muted',
+                  ]"
                   @click="store.toggleLock(item, 'price')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -128,14 +140,20 @@ const isTableView = computed(() => viewMode.value === 'table')
                 <input
                   type="text"
                   inputmode="decimal"
-                  class="form-control text-center border-0 bg-transparent text-muted"
+                  class="form-control text-center border-0 bg-transparent"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
                   :value="store.formatMoney(store.calculateBs(item.price, store.bcvRates.usd))"
                   @input="store.updateFromBs(item, $event.target.value, store.bcvRates.usd)"
                   step="0.01"
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="item.lockedField === 'bs_usd' ? 'text-primary' : 'text-muted opacity-25'"
+                  :class="[
+                    item.lockedField === 'bs_usd' ? 'text-primary' : 'opacity-25',
+                    store.theme === 'dark' && item.lockedField !== 'bs_usd'
+                      ? 'text-white-50'
+                      : 'text-muted',
+                  ]"
                   @click="store.toggleLock(item, 'bs_usd')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -149,14 +167,20 @@ const isTableView = computed(() => viewMode.value === 'table')
                 <input
                   type="text"
                   inputmode="decimal"
-                  class="form-control text-center border-0 bg-transparent text-muted"
+                  class="form-control text-center border-0 bg-transparent"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
                   :value="store.formatMoney(store.calculateBs(item.price, store.bcvRates.eur))"
                   @input="store.updateFromBs(item, $event.target.value, store.bcvRates.eur)"
                   step="0.01"
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="item.lockedField === 'bs_eur' ? 'text-primary' : 'text-muted opacity-25'"
+                  :class="[
+                    item.lockedField === 'bs_eur' ? 'text-primary' : 'opacity-25',
+                    store.theme === 'dark' && item.lockedField !== 'bs_eur'
+                      ? 'text-white-50'
+                      : 'text-muted',
+                  ]"
                   @click="store.toggleLock(item, 'bs_eur')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -170,14 +194,20 @@ const isTableView = computed(() => viewMode.value === 'table')
                 <input
                   type="text"
                   inputmode="decimal"
-                  class="form-control text-center border-0 bg-transparent text-muted"
+                  class="form-control text-center border-0 bg-transparent"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
                   :value="store.formatMoney(store.calculateBs(item.price, store.usdtRate))"
                   @input="store.updateFromBs(item, $event.target.value, store.usdtRate)"
                   step="0.01"
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="item.lockedField === 'bs_p2p' ? 'text-primary' : 'text-muted opacity-25'"
+                  :class="[
+                    item.lockedField === 'bs_p2p' ? 'text-primary' : 'opacity-25',
+                    store.theme === 'dark' && item.lockedField !== 'bs_p2p'
+                      ? 'text-white-50'
+                      : 'text-muted',
+                  ]"
                   @click="store.toggleLock(item, 'bs_p2p')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -198,9 +228,12 @@ const isTableView = computed(() => viewMode.value === 'table')
                 />
                 <button
                   class="btn border-0 px-1"
-                  :class="
-                    item.lockedField === 'reposition' ? 'text-primary' : 'text-muted opacity-25'
-                  "
+                  :class="[
+                    item.lockedField === 'reposition' ? 'text-primary' : 'opacity-25',
+                    store.theme === 'dark' && item.lockedField !== 'reposition'
+                      ? 'text-white-50'
+                      : 'text-muted',
+                  ]"
                   @click="store.toggleLock(item, 'reposition')"
                   title="Fijar valor"
                   aria-label="Fijar valor"
@@ -221,7 +254,11 @@ const isTableView = computed(() => viewMode.value === 'table')
             </td>
           </tr>
           <tr v-if="store.items.length === 0">
-            <td colspan="7" class="text-center py-3 text-muted fst-italic">
+            <td
+              colspan="7"
+              class="text-center py-3 fst-italic"
+              :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+            >
               No hay items. Agrega uno para calcular.
             </td>
           </tr>
@@ -230,12 +267,18 @@ const isTableView = computed(() => viewMode.value === 'table')
     </div>
     <div v-else class="row g-3">
       <div v-for="item in store.items" :key="item.id" class="col-12">
-        <div class="card h-100 border rounded-3 shadow-sm">
+        <div
+          class="card h-100 border rounded-3 shadow-sm"
+          :class="
+            store.theme === 'dark' ? 'bg-secondary bg-opacity-25 border-secondary' : 'bg-white'
+          "
+        >
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <input
                 type="text"
-                class="form-control me-2 form-control-sm rounded-3 bg-transparent fw-bold text-dark"
+                class="form-control me-2 form-control-sm rounded-3 bg-transparent fw-bold"
+                :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
                 v-model="item.name"
                 placeholder="Nombre"
               />
@@ -250,12 +293,17 @@ const isTableView = computed(() => viewMode.value === 'table')
             </div>
             <div class="row g-2">
               <div class="col-12 col-md-6">
-                <label class="form-label small text-muted fw-bold mb-1">Precio ($):</label>
+                <label
+                  class="form-label small fw-bold mb-1"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+                  >Precio ($):</label
+                >
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 bg-light fw-bold text-dark"
+                    class="form-control text-center border-0 fw-bold"
+                    :class="store.theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark'"
                     :value="store.formatMoney(item.price)"
                     @input="store.updateFromPrice(item, $event.target.value)"
                     min="0"
@@ -263,7 +311,12 @@ const isTableView = computed(() => viewMode.value === 'table')
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="item.lockedField === 'price' ? 'text-primary' : 'text-muted opacity-25'"
+                    :class="[
+                      item.lockedField === 'price' ? 'text-primary' : 'opacity-25',
+                      store.theme === 'dark' && item.lockedField !== 'price'
+                        ? 'text-white-50'
+                        : 'text-muted',
+                    ]"
                     @click="store.toggleLock(item, 'price')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
@@ -273,21 +326,31 @@ const isTableView = computed(() => viewMode.value === 'table')
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <label class="form-label small text-muted fw-bold mb-1">Bs (BCV $):</label>
+                <label
+                  class="form-label small fw-bold mb-1"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+                  >Bs (BCV $):</label
+                >
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 bg-light text-muted"
+                    class="form-control text-center border-0"
+                    :class="
+                      store.theme === 'dark' ? 'bg-dark text-white-50' : 'bg-light text-muted'
+                    "
                     :value="store.formatMoney(store.calculateBs(item.price, store.bcvRates.usd))"
                     @input="store.updateFromBs(item, $event.target.value, store.bcvRates.usd)"
                     step="0.01"
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="
-                      item.lockedField === 'bs_usd' ? 'text-primary' : 'text-muted opacity-25'
-                    "
+                    :class="[
+                      item.lockedField === 'bs_usd' ? 'text-primary' : 'opacity-25',
+                      store.theme === 'dark' && item.lockedField !== 'bs_usd'
+                        ? 'text-white-50'
+                        : 'text-muted',
+                    ]"
                     @click="store.toggleLock(item, 'bs_usd')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
@@ -297,21 +360,31 @@ const isTableView = computed(() => viewMode.value === 'table')
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <label class="form-label small text-muted fw-bold mb-1">Bs (BCV €):</label>
+                <label
+                  class="form-label small fw-bold mb-1"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+                  >Bs (BCV €):</label
+                >
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 bg-light text-muted"
+                    class="form-control text-center border-0"
+                    :class="
+                      store.theme === 'dark' ? 'bg-dark text-white-50' : 'bg-light text-muted'
+                    "
                     :value="store.formatMoney(store.calculateBs(item.price, store.bcvRates.eur))"
                     @input="store.updateFromBs(item, $event.target.value, store.bcvRates.eur)"
                     step="0.01"
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="
-                      item.lockedField === 'bs_eur' ? 'text-primary' : 'text-muted opacity-25'
-                    "
+                    :class="[
+                      item.lockedField === 'bs_eur' ? 'text-primary' : 'opacity-25',
+                      store.theme === 'dark' && item.lockedField !== 'bs_eur'
+                        ? 'text-white-50'
+                        : 'text-muted',
+                    ]"
                     @click="store.toggleLock(item, 'bs_eur')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
@@ -321,21 +394,31 @@ const isTableView = computed(() => viewMode.value === 'table')
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <label class="form-label small text-muted fw-bold mb-1">Bs (P2P-USDT):</label>
+                <label
+                  class="form-label small fw-bold mb-1"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+                  >Bs (P2P-USDT):</label
+                >
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 bg-light text-muted"
+                    class="form-control text-center border-0"
+                    :class="
+                      store.theme === 'dark' ? 'bg-dark text-white-50' : 'bg-light text-muted'
+                    "
                     :value="store.formatMoney(store.calculateBs(item.price, store.usdtRate))"
                     @input="store.updateFromBs(item, $event.target.value, store.usdtRate)"
                     step="0.01"
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="
-                      item.lockedField === 'bs_p2p' ? 'text-primary' : 'text-muted opacity-25'
-                    "
+                    :class="[
+                      item.lockedField === 'bs_p2p' ? 'text-primary' : 'opacity-25',
+                      store.theme === 'dark' && item.lockedField !== 'bs_p2p'
+                        ? 'text-white-50'
+                        : 'text-muted',
+                    ]"
                     @click="store.toggleLock(item, 'bs_p2p')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
@@ -345,21 +428,29 @@ const isTableView = computed(() => viewMode.value === 'table')
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <label class="form-label small text-muted fw-bold mb-1">Reposición ($):</label>
+                <label
+                  class="form-label small fw-bold mb-1"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+                  >Reposición ($):</label
+                >
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 bg-light fw-bold text-danger"
+                    class="form-control text-center border-0 fw-bold text-danger"
+                    :class="store.theme === 'dark' ? 'bg-dark' : 'bg-light'"
                     :value="store.formatMoney(store.calculateReposition(item.price))"
                     @input="store.updateFromReposition(item, $event.target.value)"
                     step="0.01"
                   />
                   <button
                     class="btn border-0 px-1"
-                    :class="
-                      item.lockedField === 'reposition' ? 'text-primary' : 'text-muted opacity-25'
-                    "
+                    :class="[
+                      item.lockedField === 'reposition' ? 'text-primary' : 'opacity-25',
+                      store.theme === 'dark' && item.lockedField !== 'reposition'
+                        ? 'text-white-50'
+                        : 'text-muted',
+                    ]"
                     @click="store.toggleLock(item, 'reposition')"
                     title="Fijar valor"
                     aria-label="Fijar valor"

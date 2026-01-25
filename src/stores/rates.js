@@ -7,6 +7,19 @@ const STORAGE_KEY = 'usdBoardData'
 export const useRatesStore = defineStore('rates', () => {
   const loading = ref(false)
   const error = ref(null)
+
+  // Inicializar tema directamente desde localStorage para evitar parpadeos
+  const theme = ref(
+    (() => {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY)
+        return data ? JSON.parse(data).theme || 'light' : 'light'
+      } catch {
+        return 'light'
+      }
+    })(),
+  )
+
   const bcvRates = ref({ eur: null, usd: null, raw: {} })
   const usdtRate = ref(null)
   const items = ref([{ id: 1, name: 'Ejemplo', price: 10, lockedField: 'price' }])
@@ -38,6 +51,7 @@ export const useRatesStore = defineStore('rates', () => {
       items: items.value,
       bcvRates: bcvRates.value,
       usdtRate: usdtRate.value,
+      theme: theme.value,
       lastUpdated: new Date().toISOString(),
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
@@ -50,18 +64,23 @@ export const useRatesStore = defineStore('rates', () => {
       if (parsed.items) items.value = parsed.items
       if (parsed.bcvRates) bcvRates.value = parsed.bcvRates
       if (parsed.usdtRate) usdtRate.value = parsed.usdtRate
+      if (parsed.theme) theme.value = parsed.theme
       return parsed
     }
     return null
   }
 
   watch(
-    items,
+    [items, theme],
     () => {
       saveToStorage()
     },
     { deep: true },
   )
+
+  const toggleTheme = () => {
+    theme.value = theme.value === 'light' ? 'dark' : 'light'
+  }
 
   const addItem = () => {
     items.value.unshift({
@@ -205,6 +224,8 @@ export const useRatesStore = defineStore('rates', () => {
     usdtRate,
     items,
     gap,
+    theme,
+    toggleTheme,
     formatMoney,
     addItem,
     removeItem,
