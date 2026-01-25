@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import CalculatorTable from './components/CalculatorTable.vue'
+import ConversionCalculator from './components/ConversionCalculator.vue'
 import { useRatesStore } from './stores/rates.js'
 
 const store = useRatesStore()
@@ -18,11 +19,42 @@ const formatRate = (value) => {
 
 const gap = computed(() => store.gap)
 
+const rateCards = computed(() => [
+  {
+    id: 'usd',
+    label: 'Dólar (USD)',
+    value: formatRate(store.bcvRates.usd),
+    className: 'text-success',
+    footer: 'BCV Oficial',
+  },
+  {
+    id: 'eur',
+    label: 'Euro (EUR)',
+    value: formatRate(store.bcvRates.eur),
+    className: 'text-primary',
+    footer: 'BCV Oficial',
+  },
+  {
+    id: 'usdt',
+    label: 'USDT (P2P)',
+    value: formatRate(store.usdtRate),
+    className: 'text-warning text-dark',
+    footer: 'Binance USDT-P2P',
+  },
+  {
+    id: 'gap',
+    label: 'Brecha %',
+    value: gap.value ? `${gap.value}%` : '--',
+    className: 'text-danger',
+    footer: 'BCV vs USDT-P2P',
+  },
+])
+
 const selectView = (view) => {
   currentView.value = view
 }
 
-const viewOrder = ['rates', 'calculator']
+const viewOrder = ['rates', 'calculator', 'convert']
 const transitionName = ref('slide-left')
 
 watch(currentView, (next, prev) => {
@@ -51,9 +83,9 @@ onMounted(() => {
                     class="text-white-50 text-uppercase fw-bold tiny-text"
                     style="letter-spacing: 1px"
                   >
-                    BCV &bull; P2P.ARMY
+                    VES &bull; TASAS DE CAMBIO
                   </div>
-                  <h1 class="h5 fw-bold mb-0">Monitor de Tasas</h1>
+                  <h1 class="h5 fw-bold mb-0 text-uppercase">Monitor de Tasas</h1>
                 </div>
                 <button
                   @click="store.loadRates()"
@@ -84,6 +116,18 @@ onMounted(() => {
                 >
                   <i class="bi bi-grid-fill"></i>
                 </button>
+
+                <button
+                  class="btn btn-sm rounded-pill px-3 btn-tab"
+                  :class="
+                    currentView === 'convert' ? 'btn-light text-primary' : 'btn-outline-light'
+                  "
+                  @click="selectView('convert')"
+                  title="Conversor"
+                  aria-label="Conversor"
+                >
+                  <i class="bi bi-arrow-left-right"></i>
+                </button>
                 <button
                   class="btn btn-sm rounded-pill px-3 btn-tab"
                   :class="
@@ -99,7 +143,7 @@ onMounted(() => {
             </div>
 
             <div class="card-body bg-white p-3 p-md-4">
-              <p class="text-muted mb-4 small">
+              <p v-if="currentView === 'rates'" class="text-muted mb-4 small">
                 Consulta en tiempo real las tasas de cambio oficiales del Banco Central de Venezuela
                 y la estimación del mercado P2P en Binance.
               </p>
@@ -116,79 +160,33 @@ onMounted(() => {
                 <div :key="currentView">
                   <!-- Grid de Tarjetas -->
                   <div v-if="currentView === 'rates'" class="row g-3 mb-4">
-                    <!-- Euro -->
-                    <div class="col-6 col-md-3">
+                    <div v-for="card in rateCards" :key="card.id" class="col-6 col-md-3">
                       <div
-                        class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
-                      >
-                        <div class="card-body text-center p-3">
-                          <div class="text-primary fw-bold text-uppercase mb-1 currency-label">
-                            Euro (EUR)
-                          </div>
-                          <h2 class="h4 fw-bold text-dark mb-0">
-                            {{ formatRate(store.bcvRates.eur) }}
-                          </h2>
-                          <small class="text-muted currency-unit">Bs. Digitales</small>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Dolar -->
-                    <div class="col-6 col-md-3">
-                      <div
-                        class="card border border-0 h-100 bg-light rounded-3 shadow-sm hover-elevate transition-all"
-                      >
-                        <div class="card-body text-center p-3">
-                          <div class="text-success fw-bold text-uppercase mb-1 currency-label">
-                            Dólar (USD)
-                          </div>
-                          <h2 class="h4 fw-bold text-dark mb-0">
-                            {{ formatRate(store.bcvRates.usd) }}
-                          </h2>
-                          <small class="text-muted currency-unit">Bs. Digitales</small>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- USDT -->
-                    <div class="col-6 col-md-3">
-                      <div
-                        class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
+                        class="card h-100 bg-light rounded-3 shadow-sm hover-elevate transition-all"
                       >
                         <div class="card-body text-center p-3">
                           <div
-                            class="text-warning text-dark fw-bold text-uppercase mb-1 currency-label"
+                            class="fw-bold text-uppercase mb-1 currency-label"
+                            :class="card.className"
                           >
-                            USDT (P2P)
+                            {{ card.label }}
                           </div>
                           <h2 class="h4 fw-bold text-dark mb-0">
-                            {{ formatRate(store.usdtRate) }}
+                            {{ card.value }}
                           </h2>
-                          <small class="text-muted currency-unit">Bs. Digitales</small>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- GAP -->
-                    <div class="col-6 col-md-3">
-                      <div
-                        class="card h-100 border-0 bg-light rounded-3 shadow-sm hover-elevate transition-all"
-                      >
-                        <div class="card-body text-center p-3">
-                          <div class="text-danger fw-bold text-uppercase mb-1 currency-label">
-                            Brecha %
-                          </div>
-                          <h2 class="h4 fw-bold text-dark mb-0">
-                            {{ gap ? gap + '%' : '--' }}
-                          </h2>
-                          <small class="text-muted currency-unit">BCV vs P2P</small>
+                          <small class="text-muted currency-unit">
+                            {{ card.footer ?? 'Bs. Digitales' }}
+                          </small>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Tabla de Calculadora -->
-                  <CalculatorTable v-else />
+                  <CalculatorTable v-else-if="currentView === 'calculator'" />
+
+                  <!-- Conversor -->
+                  <ConversionCalculator v-else />
                 </div>
               </transition>
 

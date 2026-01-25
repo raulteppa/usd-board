@@ -64,7 +64,7 @@ export const useRatesStore = defineStore('rates', () => {
   )
 
   const addItem = () => {
-    items.value.push({
+    items.value.unshift({
       id: Date.now(),
       name: 'Nuevo Item',
       price: 0,
