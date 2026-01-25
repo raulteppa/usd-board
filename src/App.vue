@@ -54,7 +54,7 @@ const selectView = (view) => {
   currentView.value = view
 }
 
-const viewOrder = ['rates', 'calculator', 'convert']
+const viewOrder = ['rates', 'convert', 'calculator']
 const transitionName = ref('slide-left')
 
 watch(currentView, (next, prev) => {
