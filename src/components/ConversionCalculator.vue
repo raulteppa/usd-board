@@ -80,21 +80,17 @@ const presetAmounts = [5, 10, 20, 50, 100]
 
 <template>
   <div class="d-flex justify-content-center">
-    <div
-      class="card border-0 shadow-lg rounded-4 overflow-hidden"
-      style="max-width: 400px; width: 100%"
-    >
+    <div class="card border-0 rounded-4 overflow-hidden w-100">
       <!-- Header with Gradient -->
-      <div class="card-header bg-gradient-primary text-white p-3 text-center border-0">
+      <div class="px-3 py-1">
         <h5 class="mb-0 fw-bold"><i class="bi bi-arrow-left-right me-2"></i>Conversor</h5>
         <div class="small opacity-75" style="font-size: 0.8rem">Calculadora de Cambio Rápida</div>
       </div>
-
-      <div class="card-body p-3 bg-light">
+      <div class="card-body p-3">
         <!-- Input Section USD -->
         <div class="bg-white p-3 rounded-4 shadow-sm mb-3 border position-relative">
           <label
-            class="small text-muted fw-bold d-block mb-1 text-uppercase ls-1"
+            class="small text-muted text-center fw-bold d-block mb-1 text-uppercase"
             style="font-size: 0.7rem"
             >Monto en Divisa ({{ selectedRate.toUpperCase() }})</label
           >
@@ -189,7 +185,7 @@ const presetAmounts = [5, 10, 20, 50, 100]
             class="position-absolute top-0 start-0 w-100 h-100 bg-primary opacity-5 pointer-events-none"
           ></div>
           <label
-            class="small text-primary fw-bold d-block mb-0 text-uppercase ls-1 position-relative"
+            class="small text-primary fw-bold d-block mb-0 text-uppercase position-relative"
             style="font-size: 0.7rem"
             >Monto en Bolívares</label
           >
@@ -216,9 +212,6 @@ const presetAmounts = [5, 10, 20, 50, 100]
 <style scoped>
 .bg-gradient-primary {
   background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-}
-.ls-1 {
-  letter-spacing: 1px;
 }
 .opacity-5 {
   opacity: 0.05;
