@@ -3,8 +3,7 @@ import axios from 'axios'
 import { load } from 'cheerio'
 
 const BCV_URL = 'https://www.bcv.org.ve/'
-const P2P_ARMY_URL =
-  'https://p2p.army/en/p2p/prices/binance?fiatUnit=VES&asset=USDT'
+const P2P_ARMY_URL = 'https://p2p.army/en/p2p/fiats/VES'
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\[\]\\]/g, '\\$&')
 
@@ -41,13 +40,8 @@ export async function fetchBcvRates() {
   const rates = {}
 
   $('.row.recuadrotsmc').each((_, section) => {
-    const currency = normalizeCurrency(
-      $(section).find('div.col-sm-6 span').text()
-    )
-    const valueText = $(section)
-      .find('div.col-sm-6.centrado strong')
-      .text()
-      .trim()
+    const currency = normalizeCurrency($(section).find('div.col-sm-6 span').text())
+    const valueText = $(section).find('div.col-sm-6.centrado strong').text().trim()
     if (currency && valueText) {
       rates[currency] = parseNumber(valueText, {
         decimalSeparator: ',',
@@ -69,9 +63,22 @@ export async function fetchP2PArmyRate() {
     httpsAgent,
   })
   const $ = load(data)
-  const value = $('#start-price').attr('value') || ''
-  return parseNumber(value, {
+  let valueText = null
+
+  $('.p2p-fiat-price-block > div').each((_, section) => {
+    const assetText = $(section).find('._asset b').text().trim()
+    if (assetText.includes('USDT')) {
+      valueText = $(section).find('._big b').first().text().trim()
+      return false
+    }
+    return true
+  })
+
+  if (!valueText) return null
+
+  const cleaned = valueText.replace(/≈|&approx;|approx\.?/gi, '').trim()
+  return parseNumber(cleaned, {
     decimalSeparator: '.',
-    thousandSeparator: ',',
+    thousandSeparator: ' ',
   })
 }
