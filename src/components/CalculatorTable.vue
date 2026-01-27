@@ -34,6 +34,8 @@ const lockButtonClasses = (item, field) => {
     isLocked ? '' : store.theme === 'dark' ? 'text-white-50' : 'text-muted',
   ]
 }
+
+const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light)
 </script>
 
 <template>
@@ -60,7 +62,7 @@ const lockButtonClasses = (item, field) => {
             aria-label="Vista tarjetas"
             @click="viewMode = 'cards'"
           >
-            <i class="bi bi-grid"></i>
+            <i class="bi bi-grid-fill"></i>
           </button>
         </div>
         <button
@@ -82,32 +84,74 @@ const lockButtonClasses = (item, field) => {
       </div>
     </div>
     <div class="d-flex flex-wrap gap-2 mb-3">
-      <span class="badge badge-rate bg-light text-dark border">
+      <span
+        class="badge"
+        :class="[
+          'badge-rate',
+          themedBadgeClass(
+            'bg-light text-dark border border-light',
+            'bg-dark border border-white-25 text-white-75',
+          ),
+        ]"
+      >
         <i class="bi bi-currency-euro me-1"></i>
         {{ formatRate(store.bcvRates.eur) }}
       </span>
-      <span class="badge badge-rate bg-success-subtle text-success border border-success-subtle">
+      <span
+        class="badge"
+        :class="[
+          'badge-rate',
+          themedBadgeClass(
+            'bg-success-subtle text-success border border-success-subtle',
+            'bg-dark border border-success text-success',
+          ),
+        ]"
+      >
         <i class="bi bi-currency-dollar me-1"></i>
         {{ formatRate(store.bcvRates.usd) }}
       </span>
-      <span class="badge badge-rate bg-warning-subtle text-dark border">
+      <span
+        class="badge"
+        :class="[
+          'badge-rate',
+          themedBadgeClass(
+            'bg-warning-subtle text-dark border border-warning-subtle',
+            'bg-dark border border-warning text-warning',
+          ),
+        ]"
+      >
         <i class="bi bi-coin me-1"></i>
         {{ formatRate(store.usdtRate) }}
       </span>
-      <span class="badge badge-rate bg-danger-subtle text-danger border">
+      <span
+        class="badge"
+        :class="[
+          'badge-rate',
+          themedBadgeClass(
+            'bg-danger-subtle text-danger border border-danger-subtle',
+            'bg-dark border border-danger text-danger',
+          ),
+        ]"
+      >
         <i class="bi bi-graph-up me-1"></i>
         {{ store.gap ? store.gap + '%' : '--' }}
       </span>
       <span
         v-if="totalUsd > 0"
-        class="badge badge-rate ps-3 bg-info-subtle text-muted justify-content-end gap-3 col border border-info-subtle"
+        class="badge justify-content-end gap-3 col"
+        :class="[
+          'badge-rate',
+          themedBadgeClass(
+            'bg-info-subtle text-muted ps-3 ps-3 border border-info-subtle',
+            'bg-dark border  border-info text-info',
+          ),
+        ]"
         role="button"
         tabindex="0"
         @click="copyTotalUsd"
         title="Copiar total en USD"
       >
         Total: {{ store.formatMoney(totalUsd) }}
-
         <i class="bi bi-clipboard me-1"></i>
       </span>
     </div>
@@ -462,6 +506,18 @@ const lockButtonClasses = (item, field) => {
   font-size: 0.75rem;
   min-width: 850px;
 }
+/* scroll */
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: transparent;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: rgba(134, 134, 134, 0.349);
+  border-radius: 4px;
+}
+
 .small-table input {
   font-size: 0.75rem;
   min-width: 80px;
