@@ -14,7 +14,7 @@ const rateOptions = computed(() => [
     sub: 'BCV',
     icon: 'bi-bank',
     value: store.bcvRates.usd,
-    color: 'primary',
+    color: 'primary text-white',
   },
   {
     id: 'eur',
@@ -22,7 +22,7 @@ const rateOptions = computed(() => [
     sub: 'BCV',
     icon: 'bi-currency-euro',
     value: store.bcvRates.eur,
-    color: 'secondary',
+    color: store.theme === 'dark' ? 'white text-dark' : 'secondary text-white',
   },
   {
     id: 'usdt',
@@ -30,7 +30,7 @@ const rateOptions = computed(() => [
     sub: 'P2P',
     icon: 'bi-wallet2',
     value: store.usdtRate,
-    color: 'success',
+    color: 'success text-white',
   },
 ])
 
@@ -92,7 +92,7 @@ const presetAmounts = [5, 10, 20, 50, 100]
       <div class="card-body p-3">
         <!-- Input Section USD -->
         <div
-          class="p-3 rounded-4 shadow-sm mb-3 border position-relative"
+          class="p-2 rounded-4 shadow-sm mb-2 position-relative"
           :class="
             store.theme === 'dark' ? 'bg-secondary bg-opacity-10 border-secondary' : 'bg-white'
           "
@@ -104,7 +104,7 @@ const presetAmounts = [5, 10, 20, 50, 100]
             >Monto en Divisa ({{ selectedRate.toUpperCase() }})</label
           >
           <div class="d-flex align-items-center justify-content-center mb-2">
-            <span class="fs-2 me-2" :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+            <span class="fs-2 mx-2" :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
               >$</span
             >
             <input
@@ -115,7 +115,7 @@ const presetAmounts = [5, 10, 20, 50, 100]
               :value="store.formatMoney(usdAmount)"
               @input="updateFromUsd"
               placeholder="0,00"
-              style="max-width: 200px"
+              style="max-width: 300px"
               id="input-usd"
             />
           </div>
@@ -133,10 +133,57 @@ const presetAmounts = [5, 10, 20, 50, 100]
           </div>
         </div>
 
+        <!-- Divider with Arrow -->
+        <div class="position-relative my-2 text-center" style="height: 30px">
+          <hr
+            class="opacity-10 position-absolute top-50 w-100 m-0 z-0"
+            :class="store.theme === 'dark' ? 'border-light' : 'border-secondary'"
+          />
+          <div
+            class="position-relative z-1 d-inline-block px-2"
+            :class="store.theme === 'dark' ? 'bg-dark' : 'bg-white'"
+          >
+            <div
+              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm"
+              style="width: 28px; height: 28px"
+            >
+              <i class="bi bi-arrow-down-up fw-bold" style="font-size: 0.8rem"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Section (Editable VES) -->
+        <div
+          class="p-2 mb-3 rounded-4 shadow-sm border border-primary border-opacity-10 text-center position-relative overflow-hidden"
+          :class="store.theme === 'dark' ? 'bg-secondary bg-opacity-10' : 'bg-white'"
+        >
+          <div
+            class="position-absolute top-0 start-0 w-100 h-100 bg-primary opacity-5 pointer-events-none"
+          ></div>
+          <label
+            class="small text-primary fw-bold d-block mb-0 text-uppercase position-relative"
+            style="font-size: 0.7rem"
+            >Monto en Bolívares</label
+          >
+          <div class="d-flex align-items-center justify-content-center position-relative">
+            <span class="text-primary opacity-50 mx-2 fw-bold" style="font-size: 1.2rem">Bs.</span>
+            <input
+              type="text"
+              inputmode="decimal"
+              class="form-control border-0 p-0 fs-1 fw-bold text-primary text-center shadow-none bg-transparent"
+              :value="store.formatMoney(vesAmount)"
+              @input="updateFromVes"
+              placeholder="0,00"
+              style="max-width: 300px"
+              id="input-ves"
+            />
+          </div>
+          <!-- <div class="small text-muted position-relative" style="font-size: 0.75rem">VES</div> -->
+        </div>
         <!-- Rate Selector -->
         <div class="mb-3">
-          <div class="row g-2">
-            <div class="col" v-for="option in rateOptions" :key="option.id">
+          <div class="row mx-auto g-lg-4 g-2 col-lg-7">
+            <div class="col mb-lg-2" v-for="option in rateOptions" :key="option.id">
               <input
                 type="radio"
                 class="btn-check"
@@ -150,7 +197,7 @@ const presetAmounts = [5, 10, 20, 50, 100]
                 class="btn w-100 h-100 d-flex flex-column align-items-center justify-content-center py-2 rounded-3 border-0 shadow-sm"
                 :class="[
                   selectedRate === option.id
-                    ? `bg-${option.color} text-white`
+                    ? `bg-${option.color} `
                     : store.theme === 'dark'
                       ? 'bg-secondary bg-opacity-25 text-light'
                       : 'bg-white text-secondary',
@@ -187,54 +234,6 @@ const presetAmounts = [5, 10, 20, 50, 100]
               </span>
             </div>
           </div>
-        </div>
-
-        <!-- Divider with Arrow -->
-        <div class="position-relative my-2 text-center" style="height: 30px">
-          <hr
-            class="opacity-10 position-absolute top-50 w-100 m-0 z-0"
-            :class="store.theme === 'dark' ? 'border-light' : 'border-secondary'"
-          />
-          <div
-            class="position-relative z-1 d-inline-block px-2"
-            :class="store.theme === 'dark' ? 'bg-dark' : 'bg-light'"
-          >
-            <div
-              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm"
-              style="width: 28px; height: 28px"
-            >
-              <i class="bi bi-arrow-down-up fw-bold" style="font-size: 0.8rem"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- Result Section (Editable VES) -->
-        <div
-          class="p-3 rounded-4 shadow-sm border border-primary border-opacity-10 text-center position-relative overflow-hidden"
-          :class="store.theme === 'dark' ? 'bg-secondary bg-opacity-10' : 'bg-white'"
-        >
-          <div
-            class="position-absolute top-0 start-0 w-100 h-100 bg-primary opacity-5 pointer-events-none"
-          ></div>
-          <label
-            class="small text-primary fw-bold d-block mb-0 text-uppercase position-relative"
-            style="font-size: 0.7rem"
-            >Monto en Bolívares</label
-          >
-          <div class="d-flex align-items-center justify-content-center position-relative">
-            <span class="text-primary opacity-50 me-2 fw-bold" style="font-size: 1.2rem">Bs.</span>
-            <input
-              type="text"
-              inputmode="decimal"
-              class="form-control border-0 p-0 fs-1 fw-bold text-primary text-center shadow-none bg-transparent"
-              :value="store.formatMoney(vesAmount)"
-              @input="updateFromVes"
-              placeholder="0,00"
-              style="max-width: 220px"
-              id="input-ves"
-            />
-          </div>
-          <div class="small text-muted position-relative" style="font-size: 0.75rem">VES</div>
         </div>
       </div>
     </div>

@@ -3,6 +3,10 @@ import { computed, onMounted, ref, watch } from 'vue'
 import CalculatorTable from './components/CalculatorTable.vue'
 import ConversionCalculator from './components/ConversionCalculator.vue'
 import { useRatesStore } from './stores/rates.js'
+import { useToast } from './composables/useToast.js'
+
+const BCV_URL = 'https://www.bcv.org.ve/'
+const P2P_ARMY_URL = 'https://p2p.army/en/p2p/fiats/VES'
 
 const store = useRatesStore()
 const currentView = ref('rates')
@@ -26,6 +30,7 @@ const rateCards = computed(() => [
     value: formatRate(store.bcvRates.usd),
     className: 'text-success',
     footer: 'BCV Oficial',
+    link: BCV_URL,
   },
   {
     id: 'eur',
@@ -33,6 +38,7 @@ const rateCards = computed(() => [
     value: formatRate(store.bcvRates.eur),
     className: 'text-primary',
     footer: 'BCV Oficial',
+    link: BCV_URL,
   },
   {
     id: 'usdt',
@@ -40,6 +46,7 @@ const rateCards = computed(() => [
     value: formatRate(store.usdtRate),
     className: store.theme === 'dark' ? 'text-warning ' : 'text-secondary ',
     footer: 'Binance USDT-P2P',
+    link: P2P_ARMY_URL,
   },
   {
     id: 'gap',
@@ -57,6 +64,32 @@ const selectView = (view) => {
 const viewOrder = ['rates', 'convert', 'calculator']
 const transitionName = ref('slide-left')
 
+const { toasts, removeToast } = useToast()
+
+const toastIcon = (type) => {
+  switch (type) {
+    case 'success':
+      return 'bi-check-circle-fill'
+    case 'danger':
+      return 'bi-exclamation-triangle-fill'
+    default:
+      return 'bi-info-circle-fill'
+  }
+}
+
+const toastVariant = (type) => {
+  switch (type) {
+    case 'success':
+      return 'bg-success bg-opacity-15 border-success text-success'
+    case 'danger':
+      return 'bg-danger bg-opacity-15 border-danger text-danger'
+    default:
+      return store.theme === 'dark'
+        ? 'bg-dark border border-white-25 text-white-75'
+        : 'bg-white border text-dark'
+  }
+}
+
 watch(currentView, (next, prev) => {
   const nextIndex = viewOrder.indexOf(next)
   const prevIndex = viewOrder.indexOf(prev)
@@ -70,8 +103,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="col-12">
-    <div class="card vh-100 shadow-lg border-0 rounded-0 overflow-hidden">
+  <div class="col-12 bg-dark" style="height: 100dvh">
+    <div class="card h-100 shadow-lg border-0 rounded-0 overflow-hidden">
       <!-- Encabezado con color primario -->
       <div class="card-header bg-primary text-white rounded-0 p-3 border-0">
         <div class="container">
@@ -103,7 +136,7 @@ onMounted(() => {
               </button>
               <button
                 @click="store.loadRates()"
-                class="btn btn-light btn-sm fst-italic fw-bold shadow-sm d-flex align-items-center gap-2 px-3 rounded-pill btn-custom"
+                class="btn btn-light btn-sm fw-bold shadow-sm d-flex align-items-center gap-1 px-3 pe-lg-4 rounded-pill btn-custom"
                 :disabled="store.loading"
                 title="Actualizar"
                 aria-label="Actualizar"
@@ -115,7 +148,11 @@ onMounted(() => {
                   aria-hidden="true"
                 ></span>
                 <i v-else class="bi bi-arrow-clockwise fw-medium"></i>
-                <span :class="{ 'text-muted': store.loading }"
+                <span
+                  :class="[
+                    ' d-none d-lg-inline justify-content-center fst-normal',
+                    { 'text-muted': store.loading },
+                  ]"
                   >Actualizar<span v-if="store.loading">...</span></span
                 >
               </button>
@@ -123,7 +160,7 @@ onMounted(() => {
           </div>
           <div class="header-tabs mt-3">
             <button
-              class="btn btn-sm rounded-pill px-3 btn-tab"
+              class="btn btn-sm rounded-pill px-3 btn-tab shadow-sm"
               :class="currentView === 'rates' ? 'btn-light text-primary' : 'btn-outline-light'"
               @click="selectView('rates')"
               title="Resumen"
@@ -133,7 +170,7 @@ onMounted(() => {
             </button>
 
             <button
-              class="btn btn-sm rounded-pill px-3 btn-tab"
+              class="btn btn-sm rounded-pill px-3 btn-tab shadow-sm"
               :class="currentView === 'convert' ? 'btn-light text-primary' : 'btn-outline-light'"
               @click="selectView('convert')"
               title="Conversor"
@@ -142,7 +179,7 @@ onMounted(() => {
               <i class="bi bi-arrow-left-right"></i>
             </button>
             <button
-              class="btn btn-sm rounded-pill px-3 btn-tab"
+              class="btn btn-sm rounded-pill px-3 btn-tab shadow-sm"
               :class="currentView === 'calculator' ? 'btn-light text-primary' : 'btn-outline-light'"
               @click="selectView('calculator')"
               title="Calculadora"
@@ -208,6 +245,15 @@ onMounted(() => {
                       >
                         {{ card.footer ?? 'Bs. Digitales' }}
                       </small>
+                      <a
+                        v-if="card.link"
+                        :href="card.link"
+                        class="btn btn-link btn-sm rounded-pill mt-0 position-absolute top-0 end-0 me-1 p-1"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <i class="bi bi-arrow-up-right-square me-0"></i>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -221,7 +267,9 @@ onMounted(() => {
             </div>
           </transition>
 
-          <div class="border-top pt-3 d-flex flex-column justify-content-end mt-auto">
+          <div
+            class="border-top pt-3 d-flex flex-column justify-content-end mt-auto border-light border-opacity-25"
+          >
             <h6
               :class="[
                 'fw-bold',
@@ -249,6 +297,36 @@ onMounted(() => {
           </div>
         </div>
       </div>
+    </div>
+    <div
+      class="toast-wrapper position-fixed start-50 bottom-0 translate-middle-x mb-3"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <transition-group name="toast-fade" tag="div">
+        <div
+          v-for="toast in toasts"
+          :key="toast.id"
+          :class="[
+            'toast-notification d-flex align-items-center justify-content-between gap-3 px-3 py-2 rounded-3 shadow-sm border pointer-events-auto',
+            toastVariant(toast.type),
+          ]"
+          role="status"
+        >
+          <div class="d-flex text-white align-items-center gap-2 flex-grow-1">
+            <i :class="['bi', toastIcon(toast.type)]"></i>
+            <span class="flex-grow-1 text-truncate">{{ toast.message }}</span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-sm btn-link text-muted p-0"
+            aria-label="Cerrar notificación"
+            @click="removeToast(toast.id)"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </transition-group>
     </div>
   </div>
 </template>
@@ -314,5 +392,45 @@ onMounted(() => {
 .slide-right-enter-from {
   opacity: 0;
   transform: translateX(-16px);
+}
+
+/* Scrollbar Styles */
+.card-body::-webkit-scrollbar {
+  width: 8px;
+}
+.card-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.card-body::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.toast-wrapper {
+  pointer-events: none;
+  z-index: 1200;
+  width: 100%;
+  max-width: 420px;
+}
+
+.toast-notification {
+  pointer-events: auto;
+}
+
+.toast-fade-enter-active,
+.toast-fade-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
 }
 </style>

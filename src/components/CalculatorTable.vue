@@ -1,13 +1,28 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRatesStore } from '../stores/rates.js'
+import { useToast } from '../composables/useToast.js'
 
 const store = useRatesStore()
 const viewMode = ref('table')
+const { showToast } = useToast()
 
 const formatRate = (value) => {
   if (value == null) return '--'
   return store.formatMoney(value)
+}
+
+const totalUsd = computed(() => store.items.reduce((sum, item) => sum + (item.price || 0), 0))
+
+const copyTotalUsd = async () => {
+  if (!totalUsd.value) return
+  try {
+    await navigator.clipboard.writeText(store.formatMoney(totalUsd.value))
+    showToast('Copiado en el portapapeles.', { type: 'success' })
+  } catch (error) {
+    console.error('No se pudo copiar el total', error)
+    showToast('No se pudo copiar al portapapeles', { type: 'danger' })
+  }
 }
 
 const isTableView = computed(() => viewMode.value === 'table')
@@ -15,7 +30,7 @@ const isTableView = computed(() => viewMode.value === 'table')
 const lockButtonClasses = (item, field) => {
   const isLocked = item.lockedField === field
   return [
-    isLocked ? 'text-primary' : 'opacity-25',
+    isLocked ? 'text-warning' : 'opacity-25',
     isLocked ? '' : store.theme === 'dark' ? 'text-white-50' : 'text-muted',
   ]
 }
@@ -24,7 +39,7 @@ const lockButtonClasses = (item, field) => {
 <template>
   <div class="mb-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h6 class="fw-bold text-secondary mb-0 small me-2">Calculadora de Precios</h6>
+      <h5 class="fw-bold text-dark mb-0 me-2">Calculadora de Precios</h5>
       <div class="d-flex gap-2">
         <div class="btn-group" role="group" aria-label="Cambiar vista">
           <button
@@ -82,6 +97,18 @@ const lockButtonClasses = (item, field) => {
       <span class="badge badge-rate bg-danger-subtle text-danger border">
         <i class="bi bi-graph-up me-1"></i>
         {{ store.gap ? store.gap + '%' : '--' }}
+      </span>
+      <span
+        v-if="totalUsd > 0"
+        class="badge badge-rate ps-3 bg-info-subtle text-muted justify-content-end gap-3 col border border-info-subtle"
+        role="button"
+        tabindex="0"
+        @click="copyTotalUsd"
+        title="Copiar total en USD"
+      >
+        Total: {{ store.formatMoney(totalUsd) }}
+
+        <i class="bi bi-clipboard me-1"></i>
       </span>
     </div>
     <div
@@ -275,7 +302,7 @@ const lockButtonClasses = (item, field) => {
               </button>
             </div>
             <div class="row g-2">
-              <div class="col-12 col-md-6">
+              <div class="col-6">
                 <label
                   class="form-label small fw-bold mb-1"
                   :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
@@ -303,7 +330,7 @@ const lockButtonClasses = (item, field) => {
                   </button>
                 </div>
               </div>
-              <div class="col-12 col-md-6">
+              <div class="col-6">
                 <label
                   class="form-label small fw-bold mb-1"
                   :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
@@ -332,7 +359,7 @@ const lockButtonClasses = (item, field) => {
                   </button>
                 </div>
               </div>
-              <div class="col-12 col-md-6">
+              <div class="col-6">
                 <label
                   class="form-label small fw-bold mb-1"
                   :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
@@ -361,7 +388,7 @@ const lockButtonClasses = (item, field) => {
                   </button>
                 </div>
               </div>
-              <div class="col-12 col-md-6">
+              <div class="col-6">
                 <label
                   class="form-label small fw-bold mb-1"
                   :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
