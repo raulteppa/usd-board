@@ -83,9 +83,9 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
         </button>
       </div>
     </div>
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
       <span
-        class="badge"
+        class="badge col"
         :class="[
           'badge-rate',
           themedBadgeClass(
@@ -98,7 +98,7 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
         {{ formatRate(store.bcvRates.eur) }}
       </span>
       <span
-        class="badge"
+        class="badge col"
         :class="[
           'badge-rate',
           themedBadgeClass(
@@ -111,7 +111,7 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
         {{ formatRate(store.bcvRates.usd) }}
       </span>
       <span
-        class="badge"
+        class="badge col"
         :class="[
           'badge-rate',
           themedBadgeClass(
@@ -124,7 +124,7 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
         {{ formatRate(store.usdtRate) }}
       </span>
       <span
-        class="badge"
+        class="badge col"
         :class="[
           'badge-rate',
           themedBadgeClass(
@@ -138,7 +138,7 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
       </span>
       <span
         v-if="totalUsd > 0"
-        class="badge justify-content-end gap-3 col"
+        class="badge justify-content-end gap-3 col-lg-4 col col-md-5"
         :class="[
           'badge-rate',
           themedBadgeClass(

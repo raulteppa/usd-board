@@ -1,11 +1,13 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRatesStore } from '../stores/rates.js'
+import { useToast } from '../composables/useToast.js'
 
 const store = useRatesStore()
 const usdAmount = ref(0)
 const vesAmount = ref(0)
 const selectedRate = ref('usd')
+const { showToast } = useToast()
 
 const rateOptions = computed(() => [
   {
@@ -76,6 +78,17 @@ watch(currentRate, (newRate) => {
 })
 
 const presetAmounts = [5, 10, 20, 50, 100]
+
+const copyAmount = async (value, label) => {
+  if (!value && value !== 0) return
+  try {
+    await navigator.clipboard.writeText(store.formatMoney(value))
+    showToast(`Copiado ${label} al portapapeles`, { type: 'success' })
+  } catch (error) {
+    console.error('No se pudo copiar', error)
+    showToast('No se pudo copiar al portapapeles', { type: 'danger' })
+  }
+}
 </script>
 
 <template>
@@ -103,7 +116,7 @@ const presetAmounts = [5, 10, 20, 50, 100]
             style="font-size: 0.7rem"
             >Monto en Divisa ({{ selectedRate.toUpperCase() }})</label
           >
-          <div class="d-flex align-items-center justify-content-center mb-2">
+          <div class="d-flex align-items-center justify-content-center mb-2 gap-2">
             <span class="fs-2 mx-2" :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
               >$</span
             >
@@ -118,6 +131,15 @@ const presetAmounts = [5, 10, 20, 50, 100]
               style="max-width: 300px"
               id="input-usd"
             />
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Copiar USD"
+              aria-label="Copiar USD"
+              @click="copyAmount(usdAmount, 'USD')"
+            >
+              <i class="bi bi-copy"></i>
+            </button>
           </div>
           <!-- Preset Badges -->
           <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
@@ -165,7 +187,7 @@ const presetAmounts = [5, 10, 20, 50, 100]
             style="font-size: 0.7rem"
             >Monto en Bolívares</label
           >
-          <div class="d-flex align-items-center justify-content-center position-relative">
+          <div class="d-flex align-items-center justify-content-center position-relative gap-2">
             <span class="text-primary opacity-50 mx-2 fw-bold" style="font-size: 1.2rem">Bs.</span>
             <input
               type="text"
@@ -177,6 +199,15 @@ const presetAmounts = [5, 10, 20, 50, 100]
               style="max-width: 300px"
               id="input-ves"
             />
+            <button
+              type="button"
+              class="btn btn-link"
+              title="Copiar VES"
+              aria-label="Copiar bolívares"
+              @click="copyAmount(vesAmount, 'VES')"
+            >
+              <i class="bi bi-copy"></i>
+            </button>
           </div>
           <!-- <div class="small text-muted position-relative" style="font-size: 0.75rem">VES</div> -->
         </div>
