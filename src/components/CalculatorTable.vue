@@ -46,8 +46,10 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
 
 <template>
   <div class="mb-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="fw-bold text-dark mb-0 me-2">Calculadora de Precios</h5>
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-1">
+      <h5 :class="['fw-bold', 'mb-0', 'me-2', store.theme === 'dark' ? 'text-white' : 'text-dark']">
+        Calculadora de Precios
+      </h5>
       <div class="d-flex gap-2">
         <div class="btn-group" role="group" aria-label="Cambiar vista">
           <button
