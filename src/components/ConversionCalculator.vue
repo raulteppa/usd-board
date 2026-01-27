@@ -1,13 +1,11 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRatesStore } from '../stores/rates.js'
-import { useToast } from '../composables/useToast.js'
 
 const store = useRatesStore()
 const usdAmount = ref(0)
 const vesAmount = ref(0)
 const selectedRate = ref('usd')
-const { showToast } = useToast()
 
 const rateOptions = computed(() => [
   {
@@ -83,10 +81,18 @@ const copyAmount = async (value, label) => {
   if (!value && value !== 0) return
   try {
     await navigator.clipboard.writeText(store.formatMoney(value))
-    showToast(`Copiado ${label} al portapapeles`, { type: 'success' })
+    store.showCopyNotification({
+      message: `Copiado`,
+      type: 'success',
+      icon: 'bi-check-lg',
+    })
   } catch (error) {
     console.error('No se pudo copiar', error)
-    showToast('No se pudo copiar al portapapeles', { type: 'danger' })
+    store.showCopyNotification({
+      message: 'No se pudo copiar al portapapeles',
+      type: 'danger',
+      icon: 'bi-exclamation-triangle-fill',
+    })
   }
 }
 </script>

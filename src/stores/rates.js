@@ -23,6 +23,12 @@ export const useRatesStore = defineStore('rates', () => {
   const bcvRates = ref({ eur: null, usd: null, raw: {} })
   const usdtRate = ref(null)
   const items = ref([{ id: 1, name: 'Ejemplo', price: 10, lockedField: 'price' }])
+  const copyNotification = ref({
+    message: 'Listo para copiar',
+    type: 'info',
+    icon: 'bi-clipboard',
+    active: false,
+  })
 
   const gap = computed(() => {
     if (!usdtRate.value || !bcvRates.value.usd) return null
@@ -77,6 +83,18 @@ export const useRatesStore = defineStore('rates', () => {
     },
     { deep: true },
   )
+
+  let notificationTimer = null
+  const showCopyNotification = ({ message, type = 'info', icon = 'bi-clipboard' }) => {
+    copyNotification.value = { message, type, icon, active: true }
+    if (notificationTimer) {
+      clearTimeout(notificationTimer)
+    }
+    notificationTimer = setTimeout(() => {
+      copyNotification.value = { ...copyNotification.value, active: false }
+      notificationTimer = null
+    }, 2500)
+  }
 
   const toggleTheme = () => {
     theme.value = theme.value === 'light' ? 'dark' : 'light'
@@ -238,5 +256,7 @@ export const useRatesStore = defineStore('rates', () => {
     downloadReport,
     loadRates,
     loadFromStorage,
+    copyNotification,
+    showCopyNotification,
   }
 })

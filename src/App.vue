@@ -3,7 +3,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import CalculatorTable from './components/CalculatorTable.vue'
 import ConversionCalculator from './components/ConversionCalculator.vue'
 import { useRatesStore } from './stores/rates.js'
-import { useToast } from './composables/useToast.js'
 
 const BCV_URL = 'https://www.bcv.org.ve/'
 const P2P_ARMY_URL = 'https://p2p.army/en/p2p/fiats/VES'
@@ -64,31 +63,21 @@ const selectView = (view) => {
 const viewOrder = ['rates', 'convert', 'calculator']
 const transitionName = ref('slide-left')
 
-const { toasts, removeToast } = useToast()
-
-const toastIcon = (type) => {
-  switch (type) {
+const indicatorClasses = computed(() => {
+  if (!store.copyNotification.active) return ''
+  switch (store.copyNotification.type) {
     case 'success':
-      return 'bi-check-circle-fill'
+      return 'py-1 bg-primary-subtle border-white text-primary'
     case 'danger':
-      return 'bi-exclamation-triangle-fill'
+      return 'py-1 bg-danger text-white'
     default:
-      return 'bi-info-circle-fill'
+      return 'py-1 bg-white border text-dark'
   }
-}
+})
 
-const toastVariant = (type) => {
-  switch (type) {
-    case 'success':
-      return 'bg-success bg-opacity-15 border-success text-success'
-    case 'danger':
-      return 'bg-danger bg-opacity-15 border-danger text-danger'
-    default:
-      return store.theme === 'dark'
-        ? 'bg-dark border border-white-25 text-white-75'
-        : 'bg-white border text-dark'
-  }
-}
+const indicatorMessage = computed(() => store.copyNotification.message)
+
+const indicatorIcon = computed(() => store.copyNotification.icon || 'bi-clipboard')
 
 watch(currentView, (next, prev) => {
   const nextIndex = viewOrder.indexOf(next)
@@ -158,9 +147,9 @@ onMounted(() => {
               </button>
             </div>
           </div>
-          <div class="header-tabs mt-3">
+          <div class="header-tabs mt-3 overflow-hidden rounded-pill">
             <button
-              class="btn btn-sm rounded-pill px-3 btn-tab shadow-sm"
+              class="btn btn-sm py-1 rounded-pill px-3 btn-tab shadow-sm h-100"
               :class="currentView === 'rates' ? 'btn-light text-primary' : 'btn-outline-light'"
               @click="selectView('rates')"
               title="Resumen"
@@ -170,7 +159,7 @@ onMounted(() => {
             </button>
 
             <button
-              class="btn btn-sm rounded-pill px-3 btn-tab shadow-sm"
+              class="btn btn-sm py-1 rounded-pill px-3 btn-tab shadow-sm h-100"
               :class="currentView === 'convert' ? 'btn-light text-primary' : 'btn-outline-light'"
               @click="selectView('convert')"
               title="Conversor"
@@ -179,7 +168,7 @@ onMounted(() => {
               <i class="bi bi-arrow-left-right"></i>
             </button>
             <button
-              class="btn btn-sm rounded-pill px-3 btn-tab shadow-sm"
+              class="btn btn-sm py-1 rounded-pill px-3 btn-tab shadow-sm h-100"
               :class="currentView === 'calculator' ? 'btn-light text-primary' : 'btn-outline-light'"
               @click="selectView('calculator')"
               title="Calculadora"
@@ -187,6 +176,18 @@ onMounted(() => {
             >
               <i class="bi bi-calculator-fill"></i>
             </button>
+
+            <transition name="indicator">
+              <div
+                v-if="store.copyNotification.active"
+                class="ms-auto btn btn-sm col-lg-4 rounded-pill text-center ps-4 pe-3 d-flex align-items-center justify-content-center gap-2"
+                style="cursor: default"
+                :class="indicatorClasses"
+              >
+                <span class="small text-truncate fw-bolder">{{ indicatorMessage }}</span>
+                <i :class="['bi', indicatorIcon]"></i>
+              </div>
+            </transition>
           </div>
         </div>
       </div>
@@ -298,36 +299,6 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <div
-      class="toast-wrapper position-fixed start-50 bottom-0 translate-middle-x mb-3"
-      aria-live="polite"
-      aria-atomic="true"
-    >
-      <transition-group name="toast-fade" tag="div">
-        <div
-          v-for="toast in toasts"
-          :key="toast.id"
-          :class="[
-            'toast-notification d-flex align-items-center justify-content-between gap-3 px-3 py-2 rounded-3 shadow-sm border pointer-events-auto',
-            toastVariant(toast.type),
-          ]"
-          role="status"
-        >
-          <div class="d-flex text-white align-items-center gap-2 flex-grow-1">
-            <i :class="['bi', toastIcon(toast.type)]"></i>
-            <span class="flex-grow-1 text-truncate">{{ toast.message }}</span>
-          </div>
-          <button
-            type="button"
-            class="btn btn-sm btn-link text-muted p-0"
-            aria-label="Cerrar notificación"
-            @click="removeToast(toast.id)"
-          >
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
-      </transition-group>
-    </div>
   </div>
 </template>
 
@@ -358,21 +329,29 @@ onMounted(() => {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  padding-bottom: 0.25rem;
   -webkit-overflow-scrolling: touch;
 }
 .btn-tab {
   white-space: nowrap;
 }
 
-.hover-elevate {
+.indicator-enter-active,
+.indicator-leave-active {
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    opacity 0.2s ease,
+    transform 0.3s ease;
 }
-.hover-elevate:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+
+.indicator-enter-from,
+.indicator-leave-to {
+  opacity: 0;
+  transform: translateX(150px);
+}
+
+.indicator-leave-from,
+.indicator-enter-to {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .slide-left-enter-active,
@@ -408,29 +387,5 @@ onMounted(() => {
 }
 .card-body::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.4);
-}
-
-.toast-wrapper {
-  pointer-events: none;
-  z-index: 1200;
-  width: 100%;
-  max-width: 420px;
-}
-
-.toast-notification {
-  pointer-events: auto;
-}
-
-.toast-fade-enter-active,
-.toast-fade-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-
-.toast-fade-enter-from,
-.toast-fade-leave-to {
-  opacity: 0;
-  transform: translateY(12px);
 }
 </style>
