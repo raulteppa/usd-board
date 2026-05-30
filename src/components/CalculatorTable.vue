@@ -370,175 +370,220 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
       </table>
     </div>
     <div v-else class="row g-2">
-      <div
-        v-for="(item, index) in store.items"
-        :key="item.id"
-        class="col-12 col-sm-6 col-lg-4 col-xl-3"
-      >
+      <div v-for="(item, index) in store.items" :key="item.id" class="col-12 col-sm-6 col-xl-4">
         <div
-          class="card border-1 rounded-3 shadow-sm compact-card"
-          :class="store.theme === 'dark' ? 'bg-dark text-white border-secondary' : ''"
+          class="card h-100 border-1 rounded-3 shadow-sm"
+          :class="store.theme === 'dark' ? 'bg-dark text-white border-secondary' : 'bg-white'"
         >
-          <div class="card-body p-2">
-            <!-- Row 1: Name + Delete -->
-            <div class="d-flex align-items-center gap-1 mb-1">
-              <input
-                type="text"
-                class="form-control form-control-sm border-0 bg-transparent fw-bold px-1 py-0"
-                :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
-                style="font-size: 0.75rem; height: 24px"
-                v-model="item.name"
-                placeholder="Item {{ index + 1 }}"
-              />
-              <button
-                @click="store.removeItem(item.id)"
-                class="btn btn-sm px-1 py-0 border-0"
-                :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
-                title="Eliminar"
-                aria-label="Eliminar"
+          <!-- Header -->
+          <div
+            class="d-flex align-items-center justify-content-between px-3 py-2"
+            :class="store.theme === 'dark' ? 'border-bottom border-secondary' : 'border-bottom'"
+            style="border-bottom-width: 2px !important"
+          >
+            <input
+              type="text"
+              class="form-control border-0 bg-transparent fw-bold px-0"
+              :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
+              style="font-size: 0.85rem; height: 30px"
+              v-model="item.name"
+              placeholder="Item {{ index + 1 }}"
+            />
+            <button
+              @click="store.removeItem(item.id)"
+              class="btn btn-sm px-1 py-0 border-0 ms-2 flex-shrink-0"
+              :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
+              title="Eliminar"
+              aria-label="Eliminar"
+            >
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+
+          <div class="card-body px-3 py-2">
+            <!-- Price (full width) -->
+            <div class="mb-2">
+              <small
+                class="d-block fw-semibold mb-1"
+                :class="store.theme === 'dark' ? 'text-white-50' : 'text-secondary'"
+                style="font-size: 0.55rem; letter-spacing: 0.5px"
+                >PRECIO USD</small
               >
-                <i class="bi bi-x-lg" style="font-size: 0.65rem"></i>
-              </button>
+              <div class="input-group input-group-sm">
+                <span
+                  class="input-group-text border-0 px-2 small"
+                  :class="
+                    store.theme === 'dark'
+                      ? 'bg-black bg-opacity-25 text-white-50'
+                      : 'bg-light text-muted'
+                  "
+                  style="font-size: 0.75rem"
+                  >$</span
+                >
+                <input
+                  type="text"
+                  inputmode="decimal"
+                  class="form-control text-center border-0 px-0 fw-semibold"
+                  :class="
+                    store.theme === 'dark'
+                      ? 'bg-black bg-opacity-25 text-white'
+                      : 'bg-light text-dark'
+                  "
+                  style="font-size: 0.9rem; height: 32px"
+                  :value="store.formatMoney(item.price)"
+                  @input="store.updateFromPrice(item, $event.target.value)"
+                  min="0"
+                  step="0.01"
+                />
+                <button
+                  class="btn border-0 px-2"
+                  :class="lockButtonClasses(item, 'price')"
+                  @click="store.toggleLock(item, 'price')"
+                  title="Fijar valor"
+                  aria-label="Fijar valor"
+                >
+                  <i class="bi bi-lock-fill"></i>
+                </button>
+              </div>
             </div>
-            <!-- Row 2: Price with $ prefix -->
-            <div class="input-group input-group-sm mb-1">
-              <span
-                class="input-group-text border-0 fw-bold px-1"
-                :class="store.theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark'"
-                style="font-size: 0.75rem"
-                >$</span
-              >
-              <input
-                type="text"
-                inputmode="decimal"
-                class="form-control text-center border-0 fw-bold shadow-none"
-                :class="store.theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark'"
-                style="font-size: 0.8rem; height: 26px"
-                :value="store.formatMoney(item.price)"
-                @input="store.updateFromPrice(item, $event.target.value)"
-                min="0"
-                step="0.01"
-              />
-              <button
-                class="btn border-0 px-1"
-                :class="lockButtonClasses(item, 'price')"
-                @click="store.toggleLock(item, 'price')"
-                title="Fijar valor"
-                aria-label="Fijar valor"
-                style="font-size: 0.65rem"
-              >
-                <i class="bi bi-lock-fill"></i>
-              </button>
-            </div>
-            <!-- Row 3: 4 compact fields -->
-            <div class="row g-1">
-              <div class="col-3 px-1">
+
+            <!-- Flat 2-column grid: BCV $ | BCV € -->
+            <div class="row g-1 mb-1">
+              <div class="col-6">
+                <small
+                  class="d-block fw-semibold mb-1"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-secondary'"
+                  style="font-size: 0.55rem; letter-spacing: 0.5px"
+                  >BCV $</small
+                >
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 rounded-1 px-0"
+                    class="form-control text-center border-0 px-0"
                     :class="
                       store.theme === 'dark'
                         ? 'bg-black bg-opacity-25 text-white-50'
                         : 'bg-light text-muted'
                     "
-                    style="font-size: 0.65rem; height: 22px"
+                    style="font-size: 0.75rem; height: 28px"
                     :value="store.formatMoney(store.calculateBs(item.price, store.bcvRates.usd))"
                     @input="store.updateFromBs(item, $event.target.value, store.bcvRates.usd)"
                     step="0.01"
-                    title="BCV $"
                   />
                   <button
-                    class="btn border-0 px-0 d-flex align-items-center"
+                    class="btn border-0 px-1"
                     :class="lockButtonClasses(item, 'bs_usd')"
                     @click="store.toggleLock(item, 'bs_usd')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
-                    style="font-size: 0.5rem"
+                    style="font-size: 0.55rem"
                   >
                     <i class="bi bi-lock-fill"></i>
                   </button>
                 </div>
               </div>
-              <div class="col-3 px-1">
+              <div class="col-6">
+                <small
+                  class="d-block fw-semibold mb-1"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-secondary'"
+                  style="font-size: 0.55rem; letter-spacing: 0.5px"
+                  >BCV €</small
+                >
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 rounded-1 px-0"
+                    class="form-control text-center border-0 px-0"
                     :class="
                       store.theme === 'dark'
                         ? 'bg-black bg-opacity-25 text-white-50'
                         : 'bg-light text-muted'
                     "
-                    style="font-size: 0.65rem; height: 22px"
+                    style="font-size: 0.75rem; height: 28px"
                     :value="store.formatMoney(store.calculateBs(item.price, store.bcvRates.eur))"
                     @input="store.updateFromBs(item, $event.target.value, store.bcvRates.eur)"
                     step="0.01"
-                    title="BCV €"
                   />
                   <button
-                    class="btn border-0 px-0 d-flex align-items-center"
+                    class="btn border-0 px-1"
                     :class="lockButtonClasses(item, 'bs_eur')"
                     @click="store.toggleLock(item, 'bs_eur')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
-                    style="font-size: 0.5rem"
+                    style="font-size: 0.55rem"
                   >
                     <i class="bi bi-lock-fill"></i>
                   </button>
                 </div>
               </div>
-              <div class="col-3 px-1">
+            </div>
+
+            <!-- Flat 2-column grid: P2P | REPO. -->
+            <div class="row g-1">
+              <div class="col-6">
+                <small
+                  class="d-block fw-semibold mb-1"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-secondary'"
+                  style="font-size: 0.55rem; letter-spacing: 0.5px"
+                  >P2P</small
+                >
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 rounded-1 px-0"
+                    class="form-control text-center border-0 px-0"
                     :class="
                       store.theme === 'dark'
                         ? 'bg-black bg-opacity-25 text-white-50'
                         : 'bg-light text-muted'
                     "
-                    style="font-size: 0.65rem; height: 22px"
+                    style="font-size: 0.75rem; height: 28px"
                     :value="store.formatMoney(store.calculateBs(item.price, store.usdtRate))"
                     @input="store.updateFromBs(item, $event.target.value, store.usdtRate)"
                     step="0.01"
-                    title="P2P"
                   />
                   <button
-                    class="btn border-0 px-0 d-flex align-items-center"
+                    class="btn border-0 px-1"
                     :class="lockButtonClasses(item, 'bs_p2p')"
                     @click="store.toggleLock(item, 'bs_p2p')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
-                    style="font-size: 0.5rem"
+                    style="font-size: 0.55rem"
                   >
                     <i class="bi bi-lock-fill"></i>
                   </button>
                 </div>
               </div>
-              <div class="col-3 px-1">
+              <div class="col-6">
+                <small
+                  class="d-block fw-semibold mb-1"
+                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-secondary'"
+                  style="font-size: 0.55rem; letter-spacing: 0.5px"
+                  >REPOSICIÓN</small
+                >
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 rounded-1 px-0 fw-semibold text-danger"
-                    :class="store.theme === 'dark' ? 'bg-black bg-opacity-25' : 'bg-light'"
-                    style="font-size: 0.65rem; height: 22px"
+                    class="form-control text-center border-0 px-0 fw-semibold text-danger"
+                    :class="
+                      store.theme === 'dark'
+                        ? 'bg-black bg-opacity-25 text-white-50'
+                        : 'bg-light text-muted'
+                    "
+                    style="font-size: 0.75rem; height: 28px"
                     :value="store.formatMoney(store.calculateReposition(item.price))"
                     @input="store.updateFromReposition(item, $event.target.value)"
                     step="0.01"
-                    title="Reposición"
                   />
                   <button
-                    class="btn border-0 px-0 d-flex align-items-center"
+                    class="btn border-0 px-1"
                     :class="lockButtonClasses(item, 'reposition')"
                     @click="store.toggleLock(item, 'reposition')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
-                    style="font-size: 0.5rem"
+                    style="font-size: 0.55rem"
                   >
                     <i class="bi bi-lock-fill"></i>
                   </button>
@@ -588,15 +633,7 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
   gap: 0.25rem;
 }
 
-.compact-card {
-  transition: box-shadow 0.2s ease;
-}
-
-.compact-card:hover {
-  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.12) !important;
-}
-
-.compact-card input:focus {
+.card input:focus {
   box-shadow: none !important;
 }
 </style>
