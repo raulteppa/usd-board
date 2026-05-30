@@ -12,6 +12,11 @@ const formatRate = (value) => {
 
 const totalUsd = computed(() => store.items.reduce((sum, item) => sum + (item.price || 0), 0))
 
+const totalBsBcv = computed(() => {
+  if (!store.bcvRates.usd) return 0
+  return totalUsd.value * store.bcvRates.usd
+})
+
 const copyTotalUsd = async () => {
   if (!totalUsd.value) return
   try {
@@ -23,6 +28,25 @@ const copyTotalUsd = async () => {
     })
   } catch (error) {
     console.error('No se pudo copiar el total', error)
+    store.showCopyNotification({
+      message: 'Error',
+      type: 'danger',
+      icon: 'bi-exclamation-triangle-fill',
+    })
+  }
+}
+
+const copyTotalBsBcv = async () => {
+  if (!totalBsBcv.value) return
+  try {
+    await navigator.clipboard.writeText(store.formatMoney(totalBsBcv.value))
+    store.showCopyNotification({
+      message: 'Copiado',
+      type: 'success',
+      icon: 'bi-check-lg',
+    })
+  } catch (error) {
+    console.error('No se pudo copiar el total en Bs', error)
     store.showCopyNotification({
       message: 'Error',
       type: 'danger',
@@ -159,7 +183,25 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
         @click="copyTotalUsd"
         title="Copiar total en USD"
       >
-        Total: {{ store.formatMoney(totalUsd) }}
+        Total $: {{ store.formatMoney(totalUsd) }}
+        <i class="bi bi-clipboard me-1"></i>
+      </span>
+      <span
+        v-if="totalBsBcv > 0"
+        class="badge justify-content-end gap-3 col-lg-4 col col-md-5"
+        :class="[
+          'badge-rate',
+          themedBadgeClass(
+            'bg-info-subtle text-muted ps-3 border border-info-subtle',
+            'bg-dark border border-info text-info',
+          ),
+        ]"
+        role="button"
+        tabindex="0"
+        @click="copyTotalBsBcv"
+        title="Copiar total en Bs (BCV $)"
+      >
+        Total Bs (BCV $): {{ store.formatMoney(totalBsBcv) }}
         <i class="bi bi-clipboard me-1"></i>
       </span>
     </div>
@@ -327,170 +369,176 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
         </tbody>
       </table>
     </div>
-    <div v-else class="row g-3">
-      <div v-for="item in store.items" :key="item.id" class="col-12">
+    <div v-else class="row g-2">
+      <div
+        v-for="(item, index) in store.items"
+        :key="item.id"
+        class="col-12 col-sm-6 col-lg-4 col-xl-3"
+      >
         <div
-          class="card h-100 border rounded-3 shadow-sm"
-          :class="
-            store.theme === 'dark' ? 'bg-secondary bg-opacity-25 border-secondary' : 'bg-white'
-          "
+          class="card border-1 rounded-3 shadow-sm compact-card"
+          :class="store.theme === 'dark' ? 'bg-dark text-white border-secondary' : ''"
         >
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="card-body p-2">
+            <!-- Row 1: Name + Delete -->
+            <div class="d-flex align-items-center gap-1 mb-1">
               <input
                 type="text"
-                class="form-control me-2 form-control-sm rounded-3 bg-transparent fw-bold"
+                class="form-control form-control-sm border-0 bg-transparent fw-bold px-1 py-0"
                 :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
+                style="font-size: 0.75rem; height: 24px"
                 v-model="item.name"
-                placeholder="Nombre"
+                placeholder="Item {{ index + 1 }}"
               />
               <button
                 @click="store.removeItem(item.id)"
-                class="btn btn-danger rounded-3 bg-danger-subtle text-danger btn-sm"
+                class="btn btn-sm px-1 py-0 border-0"
+                :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
                 title="Eliminar"
                 aria-label="Eliminar"
               >
-                <i class="bi bi-trash-fill"></i>
+                <i class="bi bi-x-lg" style="font-size: 0.65rem"></i>
               </button>
             </div>
-            <div class="row g-2">
-              <div class="col-6">
-                <label
-                  class="form-label small fw-bold mb-1"
-                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
-                  >Precio ($):</label
-                >
+            <!-- Row 2: Price with $ prefix -->
+            <div class="input-group input-group-sm mb-1">
+              <span
+                class="input-group-text border-0 fw-bold px-1"
+                :class="store.theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark'"
+                style="font-size: 0.75rem"
+                >$</span
+              >
+              <input
+                type="text"
+                inputmode="decimal"
+                class="form-control text-center border-0 fw-bold shadow-none"
+                :class="store.theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark'"
+                style="font-size: 0.8rem; height: 26px"
+                :value="store.formatMoney(item.price)"
+                @input="store.updateFromPrice(item, $event.target.value)"
+                min="0"
+                step="0.01"
+              />
+              <button
+                class="btn border-0 px-1"
+                :class="lockButtonClasses(item, 'price')"
+                @click="store.toggleLock(item, 'price')"
+                title="Fijar valor"
+                aria-label="Fijar valor"
+                style="font-size: 0.65rem"
+              >
+                <i class="bi bi-lock-fill"></i>
+              </button>
+            </div>
+            <!-- Row 3: 4 compact fields -->
+            <div class="row g-1">
+              <div class="col-3 px-1">
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 fw-bold"
-                    :class="store.theme === 'dark' ? 'bg-dark text-white' : 'bg-light text-dark'"
-                    :value="store.formatMoney(item.price)"
-                    @input="store.updateFromPrice(item, $event.target.value)"
-                    min="0"
-                    step="0.01"
-                  />
-                  <button
-                    class="btn border-0 px-1"
-                    :class="lockButtonClasses(item, 'price')"
-                    @click="store.toggleLock(item, 'price')"
-                    title="Fijar valor"
-                    aria-label="Fijar valor"
-                  >
-                    <i class="bi bi-lock-fill"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="col-6">
-                <label
-                  class="form-label small fw-bold mb-1"
-                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
-                  >Bs (BCV $):</label
-                >
-                <div class="input-group input-group-sm">
-                  <input
-                    type="text"
-                    inputmode="decimal"
-                    class="form-control text-center border-0"
+                    class="form-control text-center border-0 rounded-1 px-0"
                     :class="
-                      store.theme === 'dark' ? 'bg-dark text-white-50' : 'bg-light text-muted'
+                      store.theme === 'dark'
+                        ? 'bg-black bg-opacity-25 text-white-50'
+                        : 'bg-light text-muted'
                     "
+                    style="font-size: 0.65rem; height: 22px"
                     :value="store.formatMoney(store.calculateBs(item.price, store.bcvRates.usd))"
                     @input="store.updateFromBs(item, $event.target.value, store.bcvRates.usd)"
                     step="0.01"
+                    title="BCV $"
                   />
                   <button
-                    class="btn border-0 px-1"
+                    class="btn border-0 px-0 d-flex align-items-center"
                     :class="lockButtonClasses(item, 'bs_usd')"
                     @click="store.toggleLock(item, 'bs_usd')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
+                    style="font-size: 0.5rem"
                   >
                     <i class="bi bi-lock-fill"></i>
                   </button>
                 </div>
               </div>
-              <div class="col-6">
-                <label
-                  class="form-label small fw-bold mb-1"
-                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
-                  >Bs (BCV €):</label
-                >
+              <div class="col-3 px-1">
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0"
+                    class="form-control text-center border-0 rounded-1 px-0"
                     :class="
-                      store.theme === 'dark' ? 'bg-dark text-white-50' : 'bg-light text-muted'
+                      store.theme === 'dark'
+                        ? 'bg-black bg-opacity-25 text-white-50'
+                        : 'bg-light text-muted'
                     "
+                    style="font-size: 0.65rem; height: 22px"
                     :value="store.formatMoney(store.calculateBs(item.price, store.bcvRates.eur))"
                     @input="store.updateFromBs(item, $event.target.value, store.bcvRates.eur)"
                     step="0.01"
+                    title="BCV €"
                   />
                   <button
-                    class="btn border-0 px-1"
+                    class="btn border-0 px-0 d-flex align-items-center"
                     :class="lockButtonClasses(item, 'bs_eur')"
                     @click="store.toggleLock(item, 'bs_eur')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
+                    style="font-size: 0.5rem"
                   >
                     <i class="bi bi-lock-fill"></i>
                   </button>
                 </div>
               </div>
-              <div class="col-6">
-                <label
-                  class="form-label small fw-bold mb-1"
-                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
-                  >Bs (P2P-USDT):</label
-                >
+              <div class="col-3 px-1">
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0"
+                    class="form-control text-center border-0 rounded-1 px-0"
                     :class="
-                      store.theme === 'dark' ? 'bg-dark text-white-50' : 'bg-light text-muted'
+                      store.theme === 'dark'
+                        ? 'bg-black bg-opacity-25 text-white-50'
+                        : 'bg-light text-muted'
                     "
+                    style="font-size: 0.65rem; height: 22px"
                     :value="store.formatMoney(store.calculateBs(item.price, store.usdtRate))"
                     @input="store.updateFromBs(item, $event.target.value, store.usdtRate)"
                     step="0.01"
+                    title="P2P"
                   />
                   <button
-                    class="btn border-0 px-1"
+                    class="btn border-0 px-0 d-flex align-items-center"
                     :class="lockButtonClasses(item, 'bs_p2p')"
                     @click="store.toggleLock(item, 'bs_p2p')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
+                    style="font-size: 0.5rem"
                   >
                     <i class="bi bi-lock-fill"></i>
                   </button>
                 </div>
               </div>
-              <div class="col-12 col-md-6">
-                <label
-                  class="form-label small fw-bold mb-1"
-                  :class="store.theme === 'dark' ? 'text-white-50' : 'text-muted'"
-                  >Reposición ($):</label
-                >
+              <div class="col-3 px-1">
                 <div class="input-group input-group-sm">
                   <input
                     type="text"
                     inputmode="decimal"
-                    class="form-control text-center border-0 fw-bold text-danger"
-                    :class="store.theme === 'dark' ? 'bg-dark' : 'bg-light'"
+                    class="form-control text-center border-0 rounded-1 px-0 fw-semibold text-danger"
+                    :class="store.theme === 'dark' ? 'bg-black bg-opacity-25' : 'bg-light'"
+                    style="font-size: 0.65rem; height: 22px"
                     :value="store.formatMoney(store.calculateReposition(item.price))"
                     @input="store.updateFromReposition(item, $event.target.value)"
                     step="0.01"
+                    title="Reposición"
                   />
                   <button
-                    class="btn border-0 px-1"
+                    class="btn border-0 px-0 d-flex align-items-center"
                     :class="lockButtonClasses(item, 'reposition')"
                     @click="store.toggleLock(item, 'reposition')"
                     title="Fijar valor"
                     aria-label="Fijar valor"
+                    style="font-size: 0.5rem"
                   >
                     <i class="bi bi-lock-fill"></i>
                   </button>
@@ -538,5 +586,17 @@ const themedBadgeClass = (light, dark) => (store.theme === 'dark' ? dark : light
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.compact-card {
+  transition: box-shadow 0.2s ease;
+}
+
+.compact-card:hover {
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.12) !important;
+}
+
+.compact-card input:focus {
+  box-shadow: none !important;
 }
 </style>

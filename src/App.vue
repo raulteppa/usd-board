@@ -8,7 +8,7 @@ const BCV_URL = 'https://www.bcv.org.ve/'
 const P2P_ARMY_URL = 'https://p2p.army/en/p2p/fiats/VES'
 
 const store = useRatesStore()
-const currentView = ref('rates')
+const currentView = ref('convert')
 
 const formatter = new Intl.NumberFormat('es-VE', {
   minimumFractionDigits: 2,
@@ -260,11 +260,11 @@ onMounted(() => {
                 </div>
               </div>
 
-              <!-- Tabla de Calculadora -->
-              <CalculatorTable v-else-if="currentView === 'calculator'" />
-
               <!-- Conversor -->
-              <ConversionCalculator v-else />
+              <ConversionCalculator v-else-if="currentView === 'convert'" />
+
+              <!-- Tabla de Calculadora -->
+              <CalculatorTable v-else />
             </div>
           </transition>
 

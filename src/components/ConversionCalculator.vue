@@ -3,9 +3,32 @@ import { computed, ref, watch } from 'vue'
 import { useRatesStore } from '../stores/rates.js'
 
 const store = useRatesStore()
-const usdAmount = ref(0)
-const vesAmount = ref(0)
+const usdAmount = ref(null)
+const vesAmount = ref(null)
 const selectedRate = ref('usd')
+
+const blockNonNumeric = (event) => {
+  const allowedKeys = [
+    'Backspace',
+    'Delete',
+    'Tab',
+    'Escape',
+    'Enter',
+    'ArrowLeft',
+    'ArrowUp',
+    'ArrowRight',
+    'ArrowDown',
+    'Home',
+    'End',
+  ]
+  if (allowedKeys.includes(event.key)) return
+  if (event.key === 'a' && (event.ctrlKey || event.metaKey)) return
+  if (event.key === 'c' && (event.ctrlKey || event.metaKey)) return
+  if (event.key === 'x' && (event.ctrlKey || event.metaKey)) return
+  if (event.key === 'v' && (event.ctrlKey || event.metaKey)) return
+  if (/^\d$/.test(event.key)) return
+  event.preventDefault()
+}
 
 const rateOptions = computed(() => [
   {
@@ -131,11 +154,13 @@ const copyAmount = async (value, label) => {
               inputmode="decimal"
               class="form-control border-0 p-0 fs-1 fw-bold text-center shadow-none bg-transparent"
               :class="store.theme === 'dark' ? 'text-white' : 'text-dark'"
-              :value="store.formatMoney(usdAmount)"
+              :value="usdAmount != null && usdAmount > 0 ? store.formatMoney(usdAmount) : ''"
               @input="updateFromUsd"
+              @keydown="blockNonNumeric"
               placeholder="0,00"
               style="max-width: 300px"
               id="input-usd"
+              autocomplete="off"
             />
             <button
               type="button"
@@ -199,11 +224,13 @@ const copyAmount = async (value, label) => {
               type="text"
               inputmode="decimal"
               class="form-control border-0 p-0 fs-1 fw-bold text-primary text-center shadow-none bg-transparent"
-              :value="store.formatMoney(vesAmount)"
+              :value="vesAmount != null && vesAmount > 0 ? store.formatMoney(vesAmount) : ''"
               @input="updateFromVes"
+              @keydown="blockNonNumeric"
               placeholder="0,00"
               style="max-width: 300px"
               id="input-ves"
+              autocomplete="off"
             />
             <button
               type="button"
